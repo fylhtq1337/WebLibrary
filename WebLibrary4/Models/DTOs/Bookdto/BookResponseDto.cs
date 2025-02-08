@@ -1,3 +1,5 @@
+using WebLibrary4.Models.DTOs.BorrowRecorddto;
+
 namespace WebLibrary4.Models.DTOs;
 
 public class BookResponseDto
@@ -9,5 +11,5 @@ public class BookResponseDto
     public string Genre { get; set; } = string.Empty;  
     public int Year { get; set; }  
     public int Amount { get; set; }  
-    public List<BorrowRecordResponseDto>? BorrowRecords { get; set; }
+    public List<BorrowRecordDto>? BorrowRecords { get; set; }
 }

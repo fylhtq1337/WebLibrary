@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebLibrary4.Models.Entities;
 
-public class Users
+public class Clients
 {
     public int Id { get; set; } // Уникальный идентификатор
     

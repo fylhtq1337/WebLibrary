@@ -15,7 +15,7 @@ public class BorrowRecord
     public string BookTitle { get; set; } // Название книги (если имеется)
     
     [Required(ErrorMessage = "Пользователь должен быть указан.")]
-    [ForeignKey("User")]
+    [ForeignKey("Clints")]
     public int UserId { get; set; } // ID пользователя
     
     [StringLength(100, ErrorMessage = "Имя пользователя не должно превышать 100 символов.")]
@@ -30,7 +30,7 @@ public class BorrowRecord
 
     // Связи (для удобства)
     public Books? BorrowedBook { get; set; } // Ссылка на книгу
-    public Users? Borrower { get; set; } // Ссылка на пользователя
+    public Clients? Borrower { get; set; } // Ссылка на пользователя
     
     
     // Метод для проверки корректности даты возврата
