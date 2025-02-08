@@ -19,7 +19,15 @@ CREATE TABLE Clients (
 );
 
 INSERT INTO Clients (Username, Email, Role)
-VALUES ('TestUser', 'testuser@example.com','Admin');
+VALUES
+    ('TestUser1', 'testuser1@example.com', 'Admin'),
+    ('TestUser2', 'testuser2@example.com', 'Client'),
+    ('TestUser3', 'testuser3@example.com', 'Client'),
+    ('TestUser4', 'testuser4@example.com', 'Client'),
+    ('TestUser5', 'testuser5@example.com', 'Client');
+ 
+
+ 
 
 SELECT * FROM Clients;
 
@@ -33,10 +41,15 @@ CREATE TABLE Books (
                        Year INT CHECK (Year >= 1000 AND Year <= 2026), -- Год выпуска (проверка диапазона)
                        Amount INT NOT NULL CHECK (Amount > 0) -- Количество экземпляров книги
 );
-INSERT INTO Books (Title, Description, Author, Genre, Year, Amount)
-VALUES ('Example Book', 'A book description', 'Author Name', 'Fiction', 2020, 10);
-
 SELECT * FROM Books;
+
+INSERT INTO Books (Title, Description, Author, Genre, Year, Amount)
+VALUES ('Example Book', 'A book description', 'Author Name', 'Fiction', 2020, 10),
+                ('  Book2', 'A book description2', 'Author Name2', 'Fiction2', 2025, 10),
+                ('  Book3', 'A book  4', 'Author  32', 'Fiction2', 2022, 10),
+                ('  Book4', 'A book description2', '  Name2', ' Piro', 2022, 10),
+                ('E e Book5', 'A book description2', 'AutName42', 'iction2', 2022, 10);
+
 
 CREATE TABLE PdfDocument (
     Id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,         -- Уникальный идентификатор PDF
@@ -61,10 +74,26 @@ CREATE TABLE BorrowRecord (
                                   ON DELETE CASCADE,
                               FOREIGN KEY (UserId) REFERENCES Clients(Id) -- Связь с таблицей Users
                                   ON DELETE CASCADE
-                              
+                                            
 );
 
 INSERT INTO BorrowRecord (BookId, UserId, BorrowDate, ReturnDate)
-VALUES (1, 1, '2023-10-20', NULL);
+VALUES (1, 1, '2023-10-20', NULL),
+       (2, 3, '2023-10-20', NULL),
+       (5, 4, '2023-10-20', NULL),
+       (1, 2, '2023-10-20', NULL),
+       (3, 4, '2023-10-20', NULL);
 
-SELECT * FROM BorrowRecord;
+ 
+
+SELECT
+    c.Username AS ClientName,      -- Имя клиента
+    b.Title AS BookTitle,          -- Название книги
+    br.BorrowDate AS BorrowDate,   -- Дата взятия книги
+    br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+FROM
+    BorrowRecord br
+        JOIN
+    Clients c ON br.UserId = c.Id
+        JOIN
+    Books b ON br.BookId = b.Id;  
