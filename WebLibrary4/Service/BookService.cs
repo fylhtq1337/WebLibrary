@@ -28,14 +28,34 @@ namespace WebLibrary4.Services
             return await _bookRepository.AddAsync(book);
         }
 
-        public async Task UpdateBookAsync(Books book)
+        public async Task<bool> UpdateBookAsync(Books book)
         {
+            // Пробуем выполнить обновление через репозиторий
+            var existingBook = await _bookRepository.GetByIdAsync(book.Id);
+            if (existingBook == null)
+            {
+                // Если книга с переданным Id не найдена, возвращаем false
+                return false;
+            }
+
+            // Если книга существует, обновляем её
             await _bookRepository.UpdateAsync(book);
+            return true; // Обновление успешно
         }
 
-        public async Task DeleteBookAsync(int id)
+        public async Task<bool> DeleteBookAsync(int id)
         {
-            await _bookRepository.DeleteAsync(id);
+            // Проверяем, существует ли книга
+            var existingBook = await _bookRepository.GetByIdAsync(id);
+            if (existingBook == null)
+            {
+                // Если книги нет, возвращаем false
+                return false;
+            }
+
+            // Если книга существует, удаляем её
+            await _bookRepository.DeleteAsync(existingBook.Id);
+            return true; // Успешно удалено
         }
     }
 }
