@@ -23,7 +23,7 @@ $(document).ready(function () {
 
         // Отправляем данные через AJAX
         $.ajax({
-            url: 'admin/register-user', // URL метода контроллера
+            url: 'api/clients/create', // URL метода контроллера
             type: 'POST',
             data: formData,
             processData: false, // Не преобразовывать объект FormData в строку
@@ -58,7 +58,7 @@ $(document).ready(function () {
         const token = $('input[name="__RequestVerificationToken"]').val(); // Анти-CSRF токен
 
         $.ajax({
-            url: 'admin/add-book', // URL для отправки данных
+            url: 'api/books/create-book', // URL для отправки данных
             type: 'POST',
             data: formData,
             processData: false, // Не преобразовывать `FormData` в строку
@@ -93,7 +93,7 @@ $(document).ready(function () {
 
         // Отправляем AJAX-запрос
         $.ajax({
-            url: 'admin/create-records', // URL метода контроллера
+            url: 'api/borrow-records/create', // URL метода контроллера
             type: 'POST',
             data: formData,
             processData: false, // Не обрабатывать данные формы в строку
