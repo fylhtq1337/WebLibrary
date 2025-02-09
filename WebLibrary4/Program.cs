@@ -14,7 +14,8 @@ builder.Services
     {
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
-
+builder.Services.AddSingleton(provider => 
+    builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddScoped<IBookRepository, BookRepository>((provider) =>
 {
@@ -24,7 +25,12 @@ builder.Services.AddScoped<IBookRepository, BookRepository>((provider) =>
     return new BookRepository(connectionString);
 });
 builder.Services.AddScoped<IBookService, BookService>();
-
+// Регистрируем строку подключения в контейнере зависимостей
+builder.Services.AddScoped<IClientRepository>(provider =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    return new ClientRepository(connectionString);
+});
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientService, ClientService>();
 

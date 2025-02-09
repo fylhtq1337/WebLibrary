@@ -59,16 +59,38 @@ namespace WebLibrary4.Services
             return id > 0;
         }
 
-        public async Task<bool> UpdateClientAsync(Clients client)
+       
+
+        public async Task<bool> UpdateClientAsync(ClientDetailsDto clientDto)
         {
-            if (client.Id <= 0)
+            if (clientDto.Id <= 0)
             {
-                throw new ArgumentException("Id клиента должен быть положительным числом.", nameof(client.Id));
+                throw new ArgumentException("Id клиента должен быть положительным числом.", nameof(clientDto.Id));
             }
 
-            // Обновляем клиента (если в репозитории ничего не возвращается, мы просто предполагаем, что всё прошло успешно)
+            if (string.IsNullOrWhiteSpace(clientDto.Username))
+            {
+                throw new ArgumentException("Имя клиента не может быть пустым.", nameof(clientDto.Username));
+            }
+
+            if (string.IsNullOrWhiteSpace(clientDto.Email))
+            {
+                throw new ArgumentException("Email клиента не может быть пустым.", nameof(clientDto.Email));
+            }
+
+            // Преобразуем ClientDetailsDto в модель Clients
+            var client = new Clients
+            {
+                Id = clientDto.Id,
+                Username = clientDto.Username,
+                Email = clientDto.Email,
+                Role = "Client" // Можно задать значение по умолчанию, если Role отсутствует в DTO
+            };
+
+            // Осуществляем обновление клиента
             await _clientRepository.UpdateAsync(client);
-            return true; // Считаем, что операция успешна, если ошибок нет.
+
+            return true; // Считаем успешным обновление, если нет ошибок
         }
 
         public async Task<bool> DeleteClientAsync(int id)
