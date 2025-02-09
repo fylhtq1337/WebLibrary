@@ -20,6 +20,33 @@ namespace WebLibrary4.Controllers
             _bookService = bookService;
             _mapper = mapper;
         }
+        
+        
+        
+        
+        [HttpGet("get-all-simple")]
+        public async Task<IActionResult> GetAllSimplified()
+        {
+            try
+            {
+                // Получаем полную информацию о книгах из `IBookService`
+                var books = await _bookService.GetAllBooksAsync();
+
+                // Маппинг через AutoMapper
+                var bookDtos = _mapper.Map<List<BookShortDto>>(books);
+
+                return Ok(bookDtos);
+            }
+            catch (Exception ex)
+            {
+                // Обработка исключений
+                return StatusCode(500, new
+                {
+                    Error = "Ошибка сервера",
+                    Details = ex.Message
+                });
+            }
+        }
 
         [HttpGet("get-all-book")]
         public async Task<IActionResult> GetAll()

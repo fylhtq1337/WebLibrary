@@ -102,20 +102,45 @@ $(document).ready(function () {
 
 // Загрузка списка книг
 $("#load-books").on("click", function () {
-    $.get(`${apiBaseUrl}/books/get-all-book`, function (data) {
+    $.get(`${apiBaseUrl}/books/get-all-sample`, function (data) {
+        $.get(`${apiBaseUrl}/books/get-all-sample`)
+            .done(function (data) {
+                console.log("Данные от API (книги)", data);
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("Ошибка получения данных (книги):", textStatus, errorThrown);
+                alert("Ошибка загрузки данных. Проверьте API.");
+            });
+        console.log("Полученные книги:", data); // Логируем данные, чтобы убедиться, что они корректно приходят
+
         const tableBody = $("#books-table tbody");
-        tableBody.empty(); // Очистка таблицы
+        tableBody.empty(); // Очищаем таблицу
+
+        // Проверяем, вернулись ли данные
+        if (!Array.isArray(data) || data.length === 0) {
+            alert("Данные о книгах недоступны или список пуст.");
+            return;
+        }
+
+        // Перебираем список книг и добавляем их в таблицу
         data.forEach((book) => {
             const row = `<tr>
-                <td>${book.id}</td>
-                <td>${book.title}</td>
-                <td>${book.author}</td>
-                <td>${book.genre}</td>
-                <td>${book.description}</td>
+                <td>${book.id}</td> <!-- ID книги -->
+                <td>${book.title}</td> <!-- Название книги -->
+                <td>${book.author}</td> <!-- Автор -->
+                <td>${book.genre}</td> <!-- Жанр -->
+                <td>${book.description}</td> <!-- Описание -->
+                <td>${book.year}</td> <!-- Год издания -->
+                <td>${book.amount || "Нет информации"}</td> <!-- Количество -->
                 <td><button class="btn btn-warning btn-sm update-book" data-id="${book.id}">Изменить</button></td>
             </tr>`;
             tableBody.append(row);
         });
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.error("Ошибка загрузки книг:", textStatus, errorThrown);
+        alert("Не удалось загрузить книги. Проверьте, доступен ли API.");
+    });
+});
 
         // Кнопка изменения книги
         $(".update-book").on("click", function () {
@@ -139,8 +164,7 @@ $("#load-books").on("click", function () {
                 });
             }
         });
-    });
-});
+ 
 
 
 // Загрузка записей о выдаче книг
@@ -182,3 +206,4 @@ $("#load-borrow-records").on("click", function () {
         });
     });
 });
+
