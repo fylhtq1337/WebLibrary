@@ -34,6 +34,9 @@ builder.Services.AddScoped<IClientRepository>(provider =>
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientService, ClientService>();
 
+builder.Services.AddScoped<IBorrowRecordService, BorrowRecordService>();
+builder.Services.AddScoped<BorrowRecordRepository>();
+
 builder.Services.AddAutoMapper(typeof(Program)); // Автоматически найдет BookMappingProfile
 builder.Services
     .AddControllers()

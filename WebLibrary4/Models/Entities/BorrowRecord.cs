@@ -11,15 +11,12 @@ public class BorrowRecord
     [ForeignKey("Book")] // Указываем, что BookId ссылается на Book
     public int BookId { get; set; } // ID книги
     
-    [StringLength(100, ErrorMessage = "Название книги не должно превышать 100 символов.")]
-    public string BookTitle { get; set; } // Название книги (если имеется)
     
     [Required(ErrorMessage = "Пользователь должен быть указан.")]
     [ForeignKey("Clints")]
     public int UserId { get; set; } // ID пользователя
     
-    [StringLength(100, ErrorMessage = "Имя пользователя не должно превышать 100 символов.")]
-    public string UserName { get; set; } // Имя пользователя (если имеется)
+     
     
     [Required(ErrorMessage = "Дата взятия книги обязательна.")]
     [DataType(DataType.Date)]

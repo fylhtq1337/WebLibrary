@@ -1,0 +1,106 @@
+using WebLibrary4.Interfaces;
+using WebLibrary4.Models.DTOs;
+using WebLibrary4.Models.DTOs.BorrowRecorddto;
+using WebLibrary4.Models.DTOs.Clientsdto;
+using WebLibrary4.Models.Entities;
+using WebLibrary4.Repositories;
+
+namespace WebLibrary4.Services
+{
+    public class BorrowRecordService : IBorrowRecordService
+    {
+        private readonly BorrowRecordRepository _repository; // Репозиторий
+
+        public BorrowRecordService(BorrowRecordRepository repository)
+        {
+            _repository = repository;
+        }
+
+        // Получение всех записей
+        public async Task<IEnumerable<BorrowRecordDto>> GetAllAsync()
+        {
+            var borrowRecords = await _repository.GetAllAsync();
+            
+            // Преобразуем сущности в DTO
+            return borrowRecords.Select(record => new BorrowRecordDto
+            {
+                Id = record.Id,
+                BookId = record.BookId,
+                UserId = record.UserId,
+                BorrowDate = record.BorrowDate,
+                ReturnDate = record.ReturnDate
+            });
+        }
+
+        //  этот метод нужно в  доработать 
+        public async Task<BorrowRecordDetailsDto?> GetByIdAsync(int id)
+        {
+            var borrowRecord = await _repository.GetByIdAsync(id);
+
+            if (borrowRecord == null)
+            {
+                return null; // Если запись не найдена, возвращаем null
+            }
+
+            // Преобразуем сущность в Detailed DTO
+            return new BorrowRecordDetailsDto
+            {
+                Id = borrowRecord.Id,
+                BookId = borrowRecord.BookId,
+                UserId = borrowRecord.UserId,
+                BorrowDate = borrowRecord.BorrowDate,
+                ReturnDate = borrowRecord.ReturnDate,
+                Borrower = borrowRecord.Borrower != null ? new ClientDto
+                {
+                    Id = borrowRecord.Borrower.Id,
+                    Username = borrowRecord.Borrower.Username,
+                    Email = borrowRecord.Borrower.Email
+                } : null,
+                BorrowedBook = borrowRecord.BorrowedBook != null ? new BookRequestDto
+                {
+                     Title = borrowRecord.BorrowedBook.Title,
+                    Author = borrowRecord.BorrowedBook.Author
+                } : null
+            };
+        }
+
+        // Добавление записи
+        public async Task<int> CreateBorrowAsync(BorrowRecordDto borrowRecordDto)
+        {
+            // Преобразуем DTO в сущность
+            var borrowRecord = new BorrowRecord
+            {
+                BookId = borrowRecordDto.BookId,
+                UserId = borrowRecordDto.UserId,
+                BorrowDate = borrowRecordDto.BorrowDate,
+                ReturnDate = borrowRecordDto.ReturnDate
+            };
+
+            // Вызываем метод репозитория
+            return await _repository.AddAsync(borrowRecord);
+        }
+
+        // Обновление записи
+        public async Task UpdateAsync(BorrowRecordDto borrowRecordDto)
+        {
+            // Преобразуем DTO в сущность
+            var borrowRecord = new BorrowRecord
+            {
+                Id = borrowRecordDto.Id,
+                BookId = borrowRecordDto.BookId,
+                UserId = borrowRecordDto.UserId,
+                BorrowDate = borrowRecordDto.BorrowDate,
+                ReturnDate = borrowRecordDto.ReturnDate
+            };
+
+            // Вызываем метод репозитория
+            await _repository.UpdateAsync(borrowRecord);
+        }
+
+        // Удаление записи
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await _repository.DeleteAsync(id);
+        }
+    }
+}
