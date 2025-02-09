@@ -36,12 +36,23 @@ namespace WebLibrary4.Controllers
             return Ok(client);
         }
 
+         
         [HttpPost("create")]
         public async Task<IActionResult> CreateClient([FromBody] ClientCreateDto clientDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (string.IsNullOrWhiteSpace(clientDto.Username) || string.IsNullOrWhiteSpace(clientDto.Email))
+            {
+                return BadRequest(new { Message = "Имя клиента и email обязательны" });
+            }
+
+            if (!IsValidEmail(clientDto.Email)) // Можно добавить кастомную валидацию email
+            {
+                return BadRequest(new { Message = "Некорректный email" });
             }
 
             var isCreated = await _clientService.CreateClientAsync(clientDto);
@@ -52,6 +63,20 @@ namespace WebLibrary4.Controllers
             }
 
             return Ok(new { Message = "Клиент успешно создан." });
+        }
+
+// Метод проверки валидности email
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         [HttpPut("update/{id}")]

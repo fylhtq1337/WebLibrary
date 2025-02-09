@@ -22,11 +22,27 @@
         <div id="clients-tab" class="tab-pane fade show active">
             <h2>Клиенты</h2>
             <button class="btn btn-primary" id="load-clients">Загрузить клиентов</button>
-            <table class="table" id="clients-table">
+            <button class="btn btn-success" id="add-client-btn">Добавить клиента</button>
+            <div class="mt-3" id="add-client-form" style="display: none;">
+                <!-- Форма для добавления клиента -->
+                <h4>Новый клиент</h4>
+                <div class="form-group">
+                    <label for="client-name">Имя клиента:</label>
+                    <input id="client-name" type="text" class="form-control" placeholder="Введите имя клиента">
+                </div>
+                <div class="form-group mt-2">
+                    <label for="client-email">Email клиента:</label>
+                    <input id="client-email" type="email" class="form-control" placeholder="Введите email клиента">
+                </div>
+                <button class="btn btn-primary mt-2" id="submit-client">Добавить</button>
+            </div>
+            <table class="table mt-3" id="clients-table">
                 <thead>
                 <tr>
                     <th>ID</th>
                     <th>Имя</th>
+                    <th>Email</th>
+                    <th>Роль</th>
                     <th>Действия</th>
                 </tr>
                 </thead>

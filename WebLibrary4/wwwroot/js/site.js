@@ -1,118 +1,184 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
 
-// Write your JavaScript code.
-// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
 
-// Write your JavaScript code.
-// site-scripts.js
 
 $(document).ready(function () {
-    // Скрипт для добавления клиента
-    $('#addClientForm').on('submit', function (e) {
-        e.preventDefault(); // Отключаем стандартное поведение формы
+    const apiBaseUrl = "/api"; // Базовый URL API (здесь локальный)
 
-        // Скрыть сообщения успеха и ошибки
-        $('#successMessage').addClass('d-none');
-        $('#errorMessage').addClass('d-none');
+    // Загрузка списка клиентов
+    $("#load-clients").on("click", function () {
+        $.get("/api/clients/get-all", function (data) {
+            console.log("Полученные клиенты:", data); // Лог текущих данных, возвращаемых API
 
-        // Собираем данные из формы
-        const formData = new FormData(this);
-        const token = $('input[name="__RequestVerificationToken"]').val(); // Anti-CSRF токен
+            const tableBody = $("#clients-table tbody");
+            tableBody.empty(); // Очищаем таблицу перед обновлением
 
-        // Отправляем данные через AJAX
-        $.ajax({
-            url: 'api/clients/create', // URL метода контроллера
-            type: 'POST',
-            data: formData,
-            processData: false, // Не преобразовывать объект FormData в строку
-            contentType: false, // Отключить content-type
-            headers: {
-                "RequestVerificationToken": token // Передаём CSRF-токен
-            },
-            success: function () {
-                // Успех — показать сообщение и очистить форму
-                $('#successMessage').removeClass('d-none');
-                $('#addClientForm')[0].reset(); // Сброс формы
-            },
-            error: function (xhr, status, error) {
-                // Ошибка — показать сообщение об ошибке
-                const errorMessage = xhr.responseText || "Произошла ошибка. Попробуйте снова.";
-                $('#errorMessage').text(errorMessage).removeClass('d-none');
-                console.error("Ошибка:", errorMessage);
-            }
+            // Отображаем данные клиентов в таблице
+            data.forEach((client) => {
+                const row = `<tr>
+                <td>${client.id}</td> <!-- ID клиента -->
+                <td>${client.username}</td> <!-- Имя клиента -->
+                <td>${client.email || "N/A"}</td> <!-- Email клиента -->
+                <td>${client.role || "Не указана"}</td> <!-- Роль клиента -->
+                <td>
+                    <button class="btn btn-danger btn-sm delete-client" data-id="${client.id}">Удалить</button>
+                </td>
+            </tr>`;
+                tableBody.append(row);
+            });
+
+            // Кнопка удаления клиента
+            $(".delete-client").on("click", function () {
+                const clientId = $(this).data("id");
+                $.ajax({
+                    url: `${apiBaseUrl}/clients/delete/${clientId}`,
+                    type: "DELETE",
+                    success: function () {
+                        alert("Клиент удален!");
+                        $(`#clients-table tbody tr:has(button[data-id='${clientId}'])`).remove();
+                    },
+                    error: function () {
+                        alert("Ошибка удаления клиента");
+                    },
+                });
+            });
         });
     });
+});
 
-    // Скрипт для добавления книги
-    $('#addBookForm').on('submit', function (e) {
-        e.preventDefault(); // Отключение стандартной отправки формы
+$(document).ready(function () {
+    const apiBaseUrl = "/api"; // Базовый URL API (здесь локальный)
 
-        // Очистка сообщений об успехе/ошибке
-        $('#addBookSuccessMessage').addClass('d-none');
-        $('#addBookErrorMessage').addClass('d-none');
+    // Показ формы добавления клиента
+    $("#add-client-btn").on("click", function () {
+        $("#add-client-form").toggle(); // Переключение отображения формы
+    });
 
-        // Формируем данные для отправки
-        const formData = new FormData(this);
-        const token = $('input[name="__RequestVerificationToken"]').val(); // Анти-CSRF токен
+    // Обработка нажатия на кнопку "Добавить клиента"
+    $("#submit-client").on("click", function () {
+        const clientName = $("#client-name").val(); // Получение имени клиента
+        const clientEmail = $("#client-email").val(); // Получение email клиента
 
+        // Проверяем, что поля не пустые
+        if (!clientName.trim()) {
+            alert("Имя клиента не может быть пустым!");
+            return;
+        }
+
+        if (!clientEmail.trim() || !validateEmail(clientEmail)) {
+            alert("Введите корректный Email!");
+            return;
+        }
+
+        // AJAX-запрос на добавление клиента
         $.ajax({
-            url: 'api/books/create-book', // URL для отправки данных
-            type: 'POST',
-            data: formData,
-            processData: false, // Не преобразовывать `FormData` в строку
-            contentType: false, // Убираем `content-type`, чтобы браузер сам установил
-            headers: {
-                "RequestVerificationToken": token // Отправляем CSRF-токен
-            },
+            url: `${apiBaseUrl}/clients/create`, // URL для добавления клиента
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                username: clientName, // Имя клиента
+                email: clientEmail,   // Email клиента
+            }),
             success: function (response) {
-                // Успешное добавление книги
-                $('#addBookSuccessMessage').removeClass('d-none'); // Показываем сообщение об успехе
-                $('#addBookForm')[0].reset(); // Очищаем форму
+                alert("Клиент успешно добавлен!");
+                $("#add-client-form").hide(); // Скрыть форму
+                $("#client-name").val(""); // Очистить поле ввода
+                $("#client-email").val(""); // Очистить поле ввода email
+                $("#load-clients").click(); // Обновить список клиентов
             },
             error: function (xhr, status, error) {
-                // Ошибка при добавлении книги
-                console.error("Ошибка:", error);
-                $('#addBookErrorMessage').removeClass('d-none'); // Показываем сообщение об ошибке
-            }
+                console.error("Ошибка добавления клиента:", error);
+                alert("Не удалось добавить клиента. Проверьте правильность данных.");
+            },
         });
     });
 
-    // Скрипт для добавления записи
-    $('#addBorrowRecordForm').on('submit', function (e) {
-        e.preventDefault(); // Отключить стандартную отправку формы
+    // Функция для валидации email
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+});
 
-        // Скрыть сообщения об успехе и ошибке
-        $('#addBorrowRecordSuccess').addClass('d-none');
-        $('#addBorrowRecordError').addClass('d-none');
+// Загрузка списка книг
+$("#load-books").on("click", function () {
+    $.get(`${apiBaseUrl}/books/get-all-book`, function (data) {
+        const tableBody = $("#books-table tbody");
+        tableBody.empty(); // Очистка таблицы
+        data.forEach((book) => {
+            const row = `<tr>
+                <td>${book.id}</td>
+                <td>${book.title}</td>
+                <td>${book.author}</td>
+                <td>${book.genre}</td>
+                <td>${book.description}</td>
+                <td><button class="btn btn-warning btn-sm update-book" data-id="${book.id}">Изменить</button></td>
+            </tr>`;
+            tableBody.append(row);
+        });
 
-        // Собираем данные формы
-        const formData = new FormData(this);
-        const token = $('input[name="__RequestVerificationToken"]').val(); // Анти-CSRF токен
-
-        // Отправляем AJAX-запрос
-        $.ajax({
-            url: 'api/borrow-records/create', // URL метода контроллера
-            type: 'POST',
-            data: formData,
-            processData: false, // Не обрабатывать данные формы в строку
-            contentType: false, // Убираем вручную тип содержимого (браузер добавит сам)
-            headers: {
-                "RequestVerificationToken": token // Передаём анти-CSRF токен
-            },
-            success: function () {
-                // Успех: Покажем сообщение об успехе
-                $('#addBorrowRecordSuccess').removeClass('d-none');
-                $('#addBorrowRecordForm')[0].reset(); // Очистка формы
-            },
-            error: function (xhr, status, error) {
-                // Ошибка: Покажем сообщение об ошибке
-                console.error("Ошибка при отправке формы:", error);
-                $('#addBorrowRecordError').removeClass('d-none'); // Сообщение об ошибке
+        // Кнопка изменения книги
+        $(".update-book").on("click", function () {
+            const bookId = $(this).data("id");
+            const newDescription = prompt("Введите новое описание книги:");
+            if (newDescription) {
+                $.ajax({
+                    url: `${apiBaseUrl}/books/update-book/${bookId}`,
+                    type: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({ id: bookId, description: newDescription }),
+                    success: function () {
+                        alert("Описание обновлено!");
+                        $(`#books-table tbody tr:has(button[data-id='${bookId}']) td:nth-child(5)`).text(
+                            newDescription
+                        );
+                    },
+                    error: function () {
+                        alert("Ошибка обновления описания");
+                    },
+                });
             }
         });
     });
+});
 
 
+// Загрузка записей о выдаче книг
+$("#load-borrow-records").on("click", function () {
+    $.get(`${apiBaseUrl}/borrow-records/get-all`, function (data) {
+        const tableBody = $("#borrow-records-table tbody");
+        tableBody.empty(); // Очистка таблицы
+        data.forEach((record) => {
+            const row = `<tr>
+                <td>${record.id}</td>
+                <td>${record.bookTitle}</td>
+                <td>${record.clientName}</td>
+                <td>${record.borrowDate}</td>
+                <td>${record.returnDate || "Не возвращено"}</td>
+                <td><button class="btn btn-success btn-sm return-book" data-id="${record.id}">Вернуть</button></td>
+            </tr>`;
+            tableBody.append(row);
+        });
+
+        // Обработка возврата книги
+        $(".return-book").on("click", function () {
+            const recordId = $(this).data("id");
+            $.ajax({
+                url: `${apiBaseUrl}/borrow-records/update`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify({ id: recordId, returnDate: new Date().toISOString() }),
+                success: function () {
+                    alert("Книга возвращена!");
+                    const returnDate = new Date().toLocaleDateString();
+                    $(`#borrow-records-table tbody tr:has(button[data-id='${recordId}']) td:nth-child(5)`).text(
+                        returnDate
+                    );
+                },
+                error: function () {
+                    alert("Ошибка возврата книги");
+                },
+            });
+        });
+    });
 });
