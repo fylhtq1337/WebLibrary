@@ -9,7 +9,7 @@ using WebLibrary4.Models.Entities;
 namespace WebLibrary4.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/books")]
     public class BooksController : ControllerBase
     {
         private readonly IBookService _bookService;
@@ -211,7 +211,7 @@ namespace WebLibrary4.Controllers
             }
         }
 
-        [HttpDelete("delete-book/{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
