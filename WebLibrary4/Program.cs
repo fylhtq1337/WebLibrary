@@ -25,6 +25,9 @@ builder.Services.AddScoped<IBookRepository, BookRepository>((provider) =>
 });
 builder.Services.AddScoped<IBookService, BookService>();
 
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IClientService, ClientService>();
+
 builder.Services.AddAutoMapper(typeof(Program)); // Автоматически найдет BookMappingProfile
 builder.Services
     .AddControllers()
