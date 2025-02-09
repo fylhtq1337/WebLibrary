@@ -1,8 +1,170 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿ 
+@{
+    ViewData["Title"] = "Главная";
 }
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.Error
+    </div>
+}
+ 
+<div class="container">
+    <!-- Главное приветствие -->
+    <div class="text-center bg-light p-5 rounded-lg mb-5">
+        <h2 class="display-4">Добро пожаловать в библиотеку!</h2>
+        
+    </div>
+    <body> 
+    <!-- Панель администратора -->
+    <section class="my-5 p-4 bg-light rounded shadow">
+        <h2 class="text-center">Администрирование</h2>
+        
+        <!-- Управление -->
+        <div class="mb-4 text-center">
+            <ul class="list-inline">
+                <li class="list-inline-item">
+                    <a asp-action="ManageBooks" asp-controller="Admin" class="btn btn-primary">Управление книгами</a>
+                </li>
+                <li class="list-inline-item">
+                    <a asp-action="ManageUsers" asp-controller="Admin" class="btn btn-primary">Список пользователей</a>
+                </li>
+                <li class="list-inline-item">
+                    <a asp-action="ManageBorrowRecords" asp-controller="Admin" class="btn btn-primary">Управление записями</a>
+                </li>
+            </ul>
+        </div>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+        <!-- Добавить клиента -->
+        <div class="mb-4">
+            <h4 class="text-center">Добавить нового клиента</h4>
+            <form id="addClientForm" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                 
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input name="Username" class="form-control" placeholder="Имя пользователя" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="Email" type="email" class="form-control" placeholder="Email" required />
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <input name="Password" type="password" class="form-control" placeholder="Пароль" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="ConfirmPassword" type="password" class="form-control" placeholder="Подтвердите пароль" required />
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-block mt-3">Добавить клиента</button>
+                </div>
+                <div id="successMessage" class="alert alert-success d-none text-center" role="alert">
+                    Клиент добавлен успешно!
+                </div>
+                <div id="errorMessage" class="alert alert-danger d-none text-center" role="alert">
+                    Ошибка при добавлении клиента. Попробуйте снова.
+                </div>
+                
+            </form>
+        </div>
+        
+        
+        
+        
+        <!-- Добавить книгу -->
+        <div class="mb-4">
+            <h4 class="text-center">Добавить новую книгу</h4>
+            <form id="addBookForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken() <!-- Антифальсификация данных -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input name="Title" class="form-control" placeholder="Название книги" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="Author" class="form-control" placeholder="Автор" required />
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <input name="Genre" class="form-control" placeholder="Жанр" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="Amount" type="number" step="1" class="form-control" placeholder="Количество" required />
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <textarea name="Description" class="form-control" placeholder="Описание" required></textarea>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="PdfFile">Файл книги (PDF):</label>
+                    <input type="file" name="PdfFile" id="PdfFile" class="form-control" accept="application/pdf" required />
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-block mt-3">Добавить книгу</button>
+                </div>
+            </form>
+            <!-- Сообщение об успехе или ошибке -->
+            <div id="addBookSuccessMessage" class="alert alert-success mt-3 d-none" role="alert">
+                Книга успешно добавлена!
+            </div>
+            <div id="addBookErrorMessage" class="alert alert-danger mt-3 d-none" role="alert">
+                Ошибка при добавлении книги. Попробуйте снова.
+            </div>
+        </div>
+
+
+
+        <!-- Добавить запись -->
+        <div class="mb-4">
+            <h3 class="text-center">Добавить новую запись</h3>
+            <form id="addBorrowRecordForm" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="BookId" class="form-label">Книга (ID)</label>
+                        <input id="BookId" name="BookId" class="form-control" placeholder="Введите ID книги" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="BoolTitle" class="form-label">Название Книги</label>
+                        <input id="BoolTitle" name="BoolTitle" class="form-control" placeholder="Введите Название Книги" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="UserId" class="form-label">Пользователь (ID)</label>
+                        <input id="UserId" name="UserId" class="form-control" placeholder="Введите ID пользователя" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="UserName" class="form-label">Имя Клиента</label>
+                        <input id="UserName" name="UserName" class="form-control" placeholder="Введите Имя Клиента" required />
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <label for="BorrowDate" class="form-label">Дата записи</label>
+                        <input id="BorrowDate" name="BorrowDate" type="date" class="form-control" required />
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-block mt-3">Добавить запись</button>
+                </div>
+            </form>
+            <!-- Уведомления -->
+            <div id="addBorrowRecordSuccess" class="alert alert-success mt-3 d-none" role="alert">
+                Запись успешно добавлена!
+            </div>
+            <div id="addBorrowRecordError" class="alert alert-danger mt-3 d-none" role="alert">
+                Ошибка при добавлении записи. Попробуйте снова.
+            </div>
+        </div>
+    </section>
+
+    @section Scripts {
+        <script src="js/site.js"></script>
+    }
+
+    
+    
+    </body>
 </div>
+
