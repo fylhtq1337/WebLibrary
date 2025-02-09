@@ -84,7 +84,8 @@ VALUES (1, 1, '2023-10-20', NULL),
        (1, 2, '2023-10-20', NULL),
        (3, 4, '2023-10-20', NULL);
 
- 
+
+SELECT * FROM BorrowRecord;
 
 SELECT
     c.Username AS ClientName,      -- Имя клиента

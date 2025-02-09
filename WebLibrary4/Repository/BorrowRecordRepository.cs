@@ -32,9 +32,9 @@ namespace WebLibrary4.Repositories
                         {
                             Id = reader.GetInt32(0),
                             BookId = reader.GetInt32(1),
-                             UserId = reader.GetInt32(3),
-                             BorrowDate = reader.GetDateTime(5),
-                            ReturnDate = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6)
+                             UserId = reader.GetInt32(2),
+                             BorrowDate = reader.GetDateTime(3),
+                            ReturnDate = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(6)
                         });
                     }
                 }
@@ -81,7 +81,7 @@ namespace WebLibrary4.Repositories
 
                 var command = new NpgsqlCommand(
                     @"INSERT INTO BorrowRecord (BookId, UserId, BorrowDate, ReturnDate) 
-                      VALUES (@BookId, @BookTitle, @UserId, @UserName, @BorrowDate, @ReturnDate) 
+                      VALUES (@BookId, @UserId,  @BorrowDate, @ReturnDate) 
                       RETURNING Id", 
                     connection
                 );
