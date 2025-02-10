@@ -9,5 +9,6 @@ public interface IBookRepository
     Task<int> AddAsync(Books book);  
     Task UpdateAsync(Books book);  
     Task DeleteAsync(int id);  
-    Task<int> AddPdfAsync(PdfDocument pdf, int bookId); 
+    Task<int> AddPdfAsync(PdfDocument pdf, int bookId);
+    Task<PdfDocument> ReturnPdf(int id);
 }

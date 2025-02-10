@@ -11,4 +11,5 @@ public interface IBookService
     Task<bool> UpdateBookDescriptionAsync(int id, BookUpdateDiscrptionDto dto);
     Task<bool> DeleteBookAsync(int id);
     Task<int?> AddPdfToBookAsync(PdfDocument pdf, int bookId);
+    Task<PdfDocument> ShowContetnBook(int id);
 }

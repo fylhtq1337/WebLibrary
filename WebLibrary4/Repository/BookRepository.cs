@@ -14,6 +14,38 @@ namespace WebLibrary4.Repositories
         {
             _connectionString = connectionString;
         }
+        
+        public async Task<PdfDocument?> ReturnPdf(int id)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                // SQL-запрос для выбора PDF по идентификатору книги
+                var command = new NpgsqlCommand(
+                    "SELECT * FROM PdfDocument WHERE BookId = @BookId", 
+                    connection);
+                command.Parameters.AddWithValue("@BookId", id);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new PdfDocument
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FileName = reader.GetString(reader.GetOrdinal("FileName")),
+                            Content = (byte[])reader["Content"], // Извлечение содержимого PDF (массив байтов)
+                            ContentType = reader.GetString(reader.GetOrdinal("ContentType")),
+                            BookId = reader.GetInt32(reader.GetOrdinal("BookId"))
+                        };
+                    }
+                }
+            }
+
+            // Возвращается null, если PDF для книги не найден
+            return null;
+        }
 
         public async Task<IEnumerable<Books>> GetAllAsync()
         {

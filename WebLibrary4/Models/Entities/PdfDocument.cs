@@ -4,6 +4,8 @@ namespace WebLibrary4.Models.Entities;
 
 public class PdfDocument
 {
+    public int Id { get; set; }  
+
     [Required(ErrorMessage = "Файл PDF обязательно должен содержать данные.")]
     [CustomValidation(typeof(PdfDocument), nameof(ValidateContent))]
     public byte[] Content { get; set; } = Array.Empty<byte>(); // Содержимое файла в байтах
@@ -16,6 +18,8 @@ public class PdfDocument
     [Required(ErrorMessage = "Тип контента обязателен.")]
     [RegularExpression(@"application/pdf", ErrorMessage = "Неправильный тип файла. Ожидается PDF.")]
     public string ContentType { get; set; } = "application/pdf"; // MIME-тип файла (по умолчанию PDF)
+    
+    public int BookId { get; set; }
     
     // Пользовательский метод для проверки содержимого файла
     public static ValidationResult? ValidateContent(byte[] content, ValidationContext context)

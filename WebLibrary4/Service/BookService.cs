@@ -28,6 +28,21 @@ namespace WebLibrary4.Services
         {
             return await _bookRepository.AddAsync(book);
         }
+        
+        public async Task<PdfDocument> ShowContetnBook(int id)
+        {
+            // Шаг 1: Получение файла PDF из репозитория
+            var pdf = await _bookRepository.ReturnPdf(id);
+
+            // Шаг 2: Проверка результата (если PDF не найден, выбрасываем исключение)
+            if (pdf == null)
+            {
+                throw new KeyNotFoundException($"PDF-книга с Id = {id} не найдена.");
+            }
+
+            // Шаг 3: Возврат PDF на вызвавший метод
+            return pdf;
+        }
 
         public async Task<bool> UpdateBookDescriptionAsync(int id, BookUpdateDiscrptionDto dto)
         {

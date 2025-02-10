@@ -21,6 +21,23 @@ namespace WebLibrary4.Controllers
             _mapper = mapper;
         }
         
+        [HttpGet("{id}/pdf")]
+        public async Task<IActionResult> GetBookPdf(int id)
+        {
+            try
+            {
+                // Вызов метода сервиса
+                var pdf = await _bookService.ShowContetnBook(id);
+
+                // Возвращаем PDF-файл клиенту
+                return File(pdf.Content, pdf.ContentType, pdf.FileName);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+        }
+        
         
         
         
@@ -181,9 +198,9 @@ namespace WebLibrary4.Controllers
         
         [HttpPost("{bookId}/add-pdf")]
         public async Task<IActionResult> UploadPdf(int bookId, [FromForm] IFormFile pdfFile)
-{
-    try
-    {
+        {
+            try
+            {
         // Проверяем, что файл передан
         if (pdfFile == null)
         {
