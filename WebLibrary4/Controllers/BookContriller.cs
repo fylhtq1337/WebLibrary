@@ -27,6 +27,7 @@ namespace WebLibrary4.Controllers
         [HttpGet("get-all-simple")]
         public async Task<IActionResult> GetAllSimplified()
         {
+            Console.WriteLine("Метод вызван!");
             try
             {
                 // Получаем полную информацию о книгах из `IBookService`

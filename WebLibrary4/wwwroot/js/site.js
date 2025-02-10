@@ -100,15 +100,8 @@ $(document).ready(function () {
 
 // Загрузка списка книг
 $("#load-books").on("click", function () {
-    $.get(`${apiBaseUrl}/books/get-all-sample`, function (data) {
-        $.get(`${apiBaseUrl}/books/get-all-sample`)
-            .done(function (data) {
-                console.log("Данные от API (книги)", data);
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.error("Ошибка получения данных (книги):", textStatus, errorThrown);
-                alert("Ошибка загрузки данных. Проверьте API.");
-            });
+    $.get(`api/books/get-all-simple`, function (data) {
+         
         console.log("Полученные книги:", data); // Логируем данные, чтобы убедиться, что они корректно приходят
 
         const tableBody = $("#books-table tbody");
@@ -167,12 +160,12 @@ $("#load-books").on("click", function () {
 
 // Загрузка записей о выдаче книг
 $("#load-borrow-records").on("click", function () {
-    $.get(`${apiBaseUrl}/borrow-records/get-all`, function (data) {
+    $.get(` api/borrow-records/get-detailed`, function (data) {
         const tableBody = $("#borrow-records-table tbody");
         tableBody.empty(); // Очистка таблицы
         data.forEach((record) => {
             const row = `<tr>
-                <td>${record.id}</td>
+                
                 <td>${record.bookTitle}</td>
                 <td>${record.clientName}</td>
                 <td>${record.borrowDate}</td>
