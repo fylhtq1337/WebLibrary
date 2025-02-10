@@ -1,4 +1,5 @@
 using WebLibrary4.Interfaces;
+using WebLibrary4.Models.DTOs;
 using WebLibrary4.Models.Entities;
  
 
@@ -28,19 +29,30 @@ namespace WebLibrary4.Services
             return await _bookRepository.AddAsync(book);
         }
 
-        public async Task<bool> UpdateBookAsync(Books book)
+        public async Task<bool> UpdateBookDescriptionAsync(int id, BookUpdateDiscrptionDto dto)
         {
-            // Пробуем выполнить обновление через репозиторий
-            var existingBook = await _bookRepository.GetByIdAsync(book.Id);
+            // Проверяем, что DTO не null
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Description))
+            {
+                throw new ArgumentException("Описание книги не может быть пустым.");
+            }
+
+            // Проверяем, существует ли книга с переданным Id
+            var existingBook = await _bookRepository.GetByIdAsync(id);
             if (existingBook == null)
             {
-                // Если книга с переданным Id не найдена, возвращаем false
+                // Если книга не найдена, возвращаем false
                 return false;
             }
 
-            // Если книга существует, обновляем её
-            await _bookRepository.UpdateAsync(book);
-            return true; // Обновление успешно
+            // Обновляем только поле Description
+            existingBook.Description = dto.Description;
+
+            // Сохраняем изменения через репозиторий
+            await _bookRepository.UpdateAsync(existingBook);
+
+            // Возвращаем true, если обновление прошло успешно
+            return true;
         }
         
         public async Task<int?> AddPdfToBookAsync(PdfDocument pdf, int bookId)

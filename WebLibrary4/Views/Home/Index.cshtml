@@ -52,9 +52,41 @@
 
         <div id="books-tab" class="tab-pane fade">
             <h2>Книги</h2>
-            <button class="btn btn-primary" id="load-books">Добавить книгу</button>
-            <a href="/books-list" class="btn btn-primary">Открыть список книг</a>
-            <table class="table" id="books-table">
+            <button class="btn btn-primary" id="load-books">Открыть список книг</button>
+            <button class="btn btn-success" id="add-book-btn" style="margin-left: 10px;">Добавить книгу</button>
+            <div class="mt-3" id="add-book-form" style="display: none;">
+                <h4>Новая книга</h4>
+                <form>
+                    <div class="form-group">
+                        <label for="book-title">Название:</label>
+                        <input id="book-title" type="text" class="form-control" placeholder="Введите название книги">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="book-description">Описание:</label>
+                        <textarea id="book-description" class="form-control" placeholder="Введите описание"></textarea>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="book-author">Автор:</label>
+                        <input id="book-author" type="text" class="form-control" placeholder="Введите имя автора">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="book-genre">Жанр:</label>
+                        <input id="book-genre" type="text" class="form-control" placeholder="Введите жанр">
+                    </div>
+                    
+                   
+                    <div class="form-group mt-2">
+                        <label for="book-year">Год издания:</label>
+                        <input id="book-year" type="number" class="form-control" placeholder="Введите год издания">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="book-amount">Количество:</label>
+                        <input id="book-amount" type="number" class="form-control" placeholder="Введите количество экземпляров книги">
+                    </div>
+                    <button class="btn btn-success mt-3" id="submit-book">Добавить книгу</button>
+                </form>
+            </div>
+             <table class="table" id="books-table">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -77,9 +109,8 @@
             <table class="table" id="borrow-records-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Книга</th>
-                    <th>Клиент</th>
+                     <th>Имя Клиента</th>
+                    <th>Название Книги</th>
                     <th>Дата выдачи</th>
                     <th>Дата возврата</th>
                     <th>Действия</th>

@@ -259,38 +259,26 @@ namespace WebLibrary4.Controllers
 }
 
         [HttpPut("update-book/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] BookRequestDto bookDto)
+        public async Task<IActionResult> UpdateDescription(int id, [FromBody] BookUpdateDiscrptionDto bookDto)
         {
             try
             {
-                // Маппинг BookRequestDto -> Books
-                var book = _mapper.Map<Books>(bookDto);
-                // Проверяем, что идентификаторы совпадают
-                if (id != book.Id)
-                {
-                    return BadRequest(new
-                    {
-                        Error = "Несоответствие идентификаторов",
-                        Details = "Идентификатор книги в пути не совпадает с идентификатором в теле запроса."
-                    });
-                }
-
-                // Проверяем входные данные
-                if (string.IsNullOrWhiteSpace(book.Title) || string.IsNullOrWhiteSpace(book.Description))
+                // Проверяем входные данные DTO
+                if (bookDto == null || string.IsNullOrWhiteSpace(bookDto.Description))
                 {
                     return BadRequest(new
                     {
                         Error = "Некорректные данные книги",
-                        Details = "Название и Описание книги не могут быть пустыми."
+                        Details = "Описание книги не может быть пустым."
                     });
                 }
 
-                // Пытаемся обновить книгу
-                bool isUpdated = await _bookService.UpdateBookAsync(book);
+                // Пытаемся обновить описание книги через сервис
+                bool isUpdated = await _bookService.UpdateBookDescriptionAsync(id, bookDto);
 
-                // Если метод сервиса вернул false, значит книга не найдена
                 if (!isUpdated)
                 {
+                    // Если книга не найдена
                     return NotFound(new
                     {
                         Error = "Книга не найдена",
@@ -298,23 +286,25 @@ namespace WebLibrary4.Controllers
                     });
                 }
 
-                // Возвращаем 204 No Content, если обновление прошло успешно
+                // Возвращаем код 204 (No Content) при успешном обновлении
                 return NoContent();
             }
-            catch (ArgumentException ex) // Например, исключения валидации на уровне бизнес-логики
+            catch (ArgumentException ex)
             {
+                // Обрабатываем ошибки валидации
                 return BadRequest(new
                 {
                     Error = "Ошибка валидации данных",
                     Details = ex.Message
                 });
             }
-            catch (Exception ex) // Необработанные ошибки
+            catch (Exception ex)
             {
+                // Обрабатываем необработанные ошибки
                 return StatusCode(500, new
                 {
                     Error = "Внутренняя ошибка сервера",
-                    Details = ex.Message // Уберите поле `Details` в production
+                    Details = ex.Message // Уберите это поле в production
                 });
             }
         }
