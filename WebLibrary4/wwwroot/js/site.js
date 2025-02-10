@@ -107,6 +107,7 @@ function loadBooks() {
         renderTable("#books-table", data, createBookRow);
         addBookUpdateHandlers();
         addViewContentHandlers();
+        addBookDeleteHandlers();
     });
 }
 
@@ -123,7 +124,7 @@ function createBookRow(book) {
             <td>
                 <button class="btn btn-warning btn-sm update-book" data-id="${book.id}">Изменить</button>
                 <button class="btn btn-primary btn-sm view-content" data-id="${book.id}">Смотреть</button>
-
+                <button class="btn btn-danger btn-sm delete-book" data-id="${book.id}">Удалить</button>
             </td>
         </tr>`;
 }
@@ -151,8 +152,24 @@ function addBookUpdateHandlers() {
         }
     });
 }
+function addBookDeleteHandlers() {
+    $(".delete-book").on("click", function () {
+        const bookId = $(this).data("id"); // Получаем ID книги
 
-$("#submit-book").on("click", function (event) {
+        // Подтверждение удаления
+        const confirmDelete = confirm("Вы уверены, что хотите удалить эту книгу?");
+        if (!confirmDelete) {
+            return; // Пользователь отменил удаление
+        }
+
+        // Отправляем запрос на сервер
+        sendRequest("DELETE", `/api/books/delete/${bookId}`, null, function () {
+            alert("Книга успешно удалена!");
+            loadBooks(); // Перезагружаем список книг после удаления
+        });
+    });
+}
+$("#submit-book").on("click",async function (event) {
     event.preventDefault(); // Останавливаем отправку формы
 
     const title = $("#book-title").val().trim();
@@ -183,15 +200,55 @@ $("#submit-book").on("click", function (event) {
     };
 
     // Отправка данных на сервер (POST запрос)
-    sendRequest("POST", "/api/books/create-book", bookData, function (response) {
+    try {
+        // 1. Создаём книгу
+        const response = await new Promise((resolve, reject) => {
+            sendRequest("POST", "/api/books/create-book", bookData, resolve, reject);
+        });
+
+        // Берём `id` только созданной книги
+        const bookId = response.id; // Убедитесь, что сервер возвращает ID книги
         alert("Книга успешно добавлена!");
+
+        // 2. Загружаем PDF-файл, если он указан
+        if (pdfFile) {
+            await uploadPdf(bookId, pdfFile);
+            alert("PDF успешно добавлен!");
+        }
+
+        // Обновление интерфейса
         $("#add-book-form").hide();
         loadBooks(); // Обновляем список книг
-    }, function (error) {
-        console.error("Ошибка при добавлении книги:", error.responseText);
-        alert("Ошибка при добавлении книги. Проверьте данные.");
-    });
+    } catch (error) {
+        console.error("Ошибка при добавлении книги или PDF:", error);
+        alert("Ошибка при добавлении книги или её PDF. Проверьте данные!");
+    }
 });
+
+// Логика для загрузки PDF
+function uploadPdf(bookId, pdfFile) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append("pdfFile", pdfFile);
+
+        $.ajax({
+            url: `/api/books/${bookId}/add-pdf`,
+            type: "POST",
+            data: formData,
+            processData: false, // Не обрабатываем данные FormData
+            contentType: false, // Отключаем content-type для корректной передачи файла
+            success: function (response) {
+                console.log("PDF успешно загружен:", response);
+                resolve(response);
+            },
+            error: function (xhr) {
+                console.error(`Ошибка загрузки PDF: ${xhr.status} - ${xhr.responseText}`);
+                console.error(`Ответ сервера: ${xhr.responseText}`);
+                reject(xhr);
+            }
+        });
+    });
+}
 
 // ----------------------------
 // Логика работы с записями выдачи книг

@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace WebLibrary4.Models.DTOs;
 
 public class BookRequestDto
+
 {
+    public int Id { get; set; }
     [Required(ErrorMessage = "Название книги обязательно для заполнения.")]
     [StringLength(100, ErrorMessage = "Название книги не должно превышать 100 символов.")]
     public string Title { get; set; } = string.Empty;  
