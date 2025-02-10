@@ -106,6 +106,7 @@ function loadBooks() {
     sendRequest("GET", "/api/books/get-all-simple", null, function (data) {
         renderTable("#books-table", data, createBookRow);
         addBookUpdateHandlers();
+        addViewContentHandlers();
     });
 }
 
@@ -121,8 +122,18 @@ function createBookRow(book) {
             <td>${book.amount || "Нет информации"}</td>
             <td>
                 <button class="btn btn-warning btn-sm update-book" data-id="${book.id}">Изменить</button>
+                <button class="btn btn-primary btn-sm view-content" data-id="${book.id}">Смотреть</button>
+
             </td>
         </tr>`;
+}
+function addViewContentHandlers() {
+    $(".view-content").on("click", function () {
+        const bookId = $(this).data("id"); // Получаем ID книги
+
+        // Перенаправление на страницу просмотра с передачей bookId через query параметр
+        window.location.href = `/view-pdf.cshtml?bookId=${bookId}`;
+    });
 }
 
 function addBookUpdateHandlers() {
@@ -142,33 +153,43 @@ function addBookUpdateHandlers() {
 }
 
 $("#submit-book").on("click", function (event) {
-    event.preventDefault();
+    event.preventDefault(); // Останавливаем отправку формы
+
     const title = $("#book-title").val().trim();
     const author = $("#book-author").val().trim();
     const genre = $("#book-genre").val().trim();
     const description = $("#book-description").val().trim();
     const year = $("#book-year").val().trim();
+    const amount = $("#book-amount").val().trim();
 
+    // Валидация всех полей
     if (!validateField(title, "Название книги не может быть пустым!") ||
         !validateField(author, "Автор книги не может быть пустым!") ||
         !validateField(genre, "Жанр книги не может быть пустым!") ||
         !validateField(description, "Описание книги не может быть пустым!") ||
-        !validateField(year, "Год издания книги не может быть пустым!")) {
+        !validateField(year, "Год издания книги не может быть пустым!") ||
+        !validateField(amount, "Количество экземпляров книги должно быть указано!")) {
         return;
     }
 
+    // Передача всех полей, включая amount (и преобразование типов, где нужно)
     const bookData = {
         title: title,
         author: author,
         genre: genre,
         description: description,
         year: parseInt(year, 10),
+        amount: parseInt(amount, 10),
     };
 
-    sendRequest("POST", "/api/books/create-book", bookData, function () {
+    // Отправка данных на сервер (POST запрос)
+    sendRequest("POST", "/api/books/create-book", bookData, function (response) {
         alert("Книга успешно добавлена!");
         $("#add-book-form").hide();
-        loadBooks();
+        loadBooks(); // Обновляем список книг
+    }, function (error) {
+        console.error("Ошибка при добавлении книги:", error.responseText);
+        alert("Ошибка при добавлении книги. Проверьте данные.");
     });
 });
 
