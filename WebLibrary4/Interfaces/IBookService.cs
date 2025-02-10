@@ -9,4 +9,5 @@ public interface IBookService
     Task<int> AddBookAsync(Books book);
     Task<bool> UpdateBookAsync(Books book);
     Task<bool> DeleteBookAsync(int id);
+    Task<int?> AddPdfToBookAsync(PdfDocument pdf, int bookId);
 }

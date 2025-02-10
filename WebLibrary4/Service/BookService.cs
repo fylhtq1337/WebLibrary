@@ -42,6 +42,21 @@ namespace WebLibrary4.Services
             await _bookRepository.UpdateAsync(book);
             return true; // Обновление успешно
         }
+        
+        public async Task<int?> AddPdfToBookAsync(PdfDocument pdf, int bookId)
+        {
+            // Проверяем существование книги
+            var existingBook = await _bookRepository.GetByIdAsync(bookId);
+            if (existingBook == null)
+            {
+                // Если книги не существует, возвращаем null (или бросаем исключение, если нужно)
+                return null;
+            }
+
+            // Добавляем PDF через репозиторий
+            var pdfId = await _bookRepository.AddPdfAsync(pdf, bookId);
+            return pdfId; // Возвращаем ID добавленного PDF
+        }
 
         public async Task<bool> DeleteBookAsync(int id)
         {

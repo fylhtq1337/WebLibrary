@@ -44,11 +44,9 @@ $(document).ready(function () {
             });
         });
     });
-});
 
-$(document).ready(function () {
-    const apiBaseUrl = "/api"; // Базовый URL API (здесь локальный)
 
+ 
     // Показ формы добавления клиента
     $("#add-client-btn").on("click", function () {
         $("#add-client-form").toggle(); // Переключение отображения формы
@@ -206,4 +204,5 @@ $("#load-borrow-records").on("click", function () {
         });
     });
 });
+
 

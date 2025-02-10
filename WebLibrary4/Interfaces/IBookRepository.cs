@@ -4,9 +4,10 @@ namespace WebLibrary4.Interfaces;
 
 public interface IBookRepository
 {
-    Task<IEnumerable<Books>> GetAllAsync(); // Получить все книги из базы
-    Task<Books?> GetByIdAsync(int id); // Получить книгу по ID
-    Task<int> AddAsync(Books book); // Добавить новую книгу
-    Task UpdateAsync(Books book); // Обновить книгу
-    Task DeleteAsync(int id); // Удалить книгу по ID
+    Task<IEnumerable<Books>> GetAllAsync();  
+    Task<Books?> GetByIdAsync(int id);  
+    Task<int> AddAsync(Books book);  
+    Task UpdateAsync(Books book);  
+    Task DeleteAsync(int id);  
+    Task<int> AddPdfAsync(PdfDocument pdf, int bookId); 
 }

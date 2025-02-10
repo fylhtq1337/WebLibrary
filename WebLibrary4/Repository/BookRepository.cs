@@ -99,6 +99,31 @@ namespace WebLibrary4.Repositories
                 return Convert.ToInt32(result);
             }
         }
+        
+        public async Task<int> AddPdfAsync(PdfDocument pdf, int bookId)
+        {
+            if (pdf == null) throw new ArgumentNullException(nameof(pdf));
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var command = new NpgsqlCommand(
+                    @"INSERT INTO PdfDocument (FileName, Content, ContentType, BookId) 
+                      VALUES (@FileName, @Content, @ContentType, @BookId) 
+                      RETURNING Id",
+                    connection
+                );
+
+                command.Parameters.AddWithValue("@FileName", pdf.FileName);
+                command.Parameters.AddWithValue("@Content", pdf.Content);
+                command.Parameters.AddWithValue("@ContentType", pdf.ContentType);
+                command.Parameters.AddWithValue("@BookId", bookId);
+
+                var result = await command.ExecuteScalarAsync();
+                return Convert.ToInt32(result); // Возвращаем ID добавленного PDF
+            }
+        }
 
         public async Task UpdateAsync(Books book)
         {
