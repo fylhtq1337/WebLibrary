@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
-using WebLibrary4.Interfaces;
+ using WebLibrary4.Interfaces;
 using WebLibrary4.Repositories;
 using WebLibrary4.Services;
 
@@ -47,7 +46,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IClientService, ClientService>();
 
     services.AddScoped<IBorrowRecordService, BorrowRecordService>();
-    services.AddScoped<BorrowRecordRepository>();
+    services.AddScoped<IBorrowRecordRepository, BorrowRecordRepository>();
 
     // Регистрация AutoMapper
     services.AddAutoMapper(typeof(Program));

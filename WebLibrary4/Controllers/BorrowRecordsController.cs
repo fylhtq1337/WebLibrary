@@ -32,6 +32,30 @@ namespace WebLibrary4.Controllers
 
             return Ok(record);
         }
+        [HttpGet("get-detailed")]
+        public async Task<IActionResult> GetDetailedBorrowRecords()
+        {
+            try
+            {
+                // Вызов метода сервиса для получения детализированных записей
+                var detailedRecords = await _service.GetDetailedBorrowRecordsAsync();
+
+                // Возвращаем результат
+                return Ok(detailedRecords);
+            }
+            catch (Exception ex)
+            {
+                // Логирование исключений при необходимости
+                Console.WriteLine($"Ошибка: {ex.Message}");
+
+                // Возвращаем статус ошибки (500 — Internal server error)
+                return StatusCode(500, new
+                {
+                    Error = "Внутренняя ошибка сервера",
+                    Message = ex.Message
+                });
+            }
+        }
 
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BorrowRecordDto dto)

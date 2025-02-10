@@ -1,10 +1,12 @@
  
 using Npgsql;
+using WebLibrary4.Interfaces;
+using WebLibrary4.Models.DTOs.BorrowRecorddto;
 using WebLibrary4.Models.Entities;
 
 namespace WebLibrary4.Repositories
 {
-    public class BorrowRecordRepository
+    public class BorrowRecordRepository : IBorrowRecordRepository
     {
         private readonly string _connectionString;
 
@@ -123,6 +125,45 @@ namespace WebLibrary4.Repositories
 
                 await command.ExecuteNonQueryAsync();
             }
+        }
+        
+        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> GetDetailedBorrowRecordsAsync()
+        {
+            var detailedRecords = new List<BorrowRecordClientNameBookTitleDto>();
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var command = new NpgsqlCommand(@"
+            SELECT
+                c.Username AS ClientName,      -- Имя клиента
+                b.Title AS BookTitle,          -- Название книги
+                br.BorrowDate AS BorrowDate,   -- Дата взятия книги
+                br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+            FROM
+                BorrowRecord br
+                JOIN Clients c ON br.UserId = c.Id
+                JOIN Books b ON br.BookId = b.Id", 
+                    connection
+                );
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
+                        {
+                            ClientName = reader.GetString(0),                        // ClientName
+                            BookTitle = reader.GetString(1),                        // BookTitle
+                            BorrowDate = reader.GetDateTime(2),                     // BorrowDate
+                            ReturnDate = reader.IsDBNull(3) ? null : reader.GetDateTime(3) // ReturnDate
+                        });
+                    }
+                }
+            }
+
+            return detailedRecords;
         }
 
         // Удалить запись по Id

@@ -9,9 +9,9 @@ namespace WebLibrary4.Services
 {
     public class BorrowRecordService : IBorrowRecordService
     {
-        private readonly BorrowRecordRepository _repository; // Репозиторий
+        private readonly IBorrowRecordRepository _repository; // Репозиторий
 
-        public BorrowRecordService(BorrowRecordRepository repository)
+        public BorrowRecordService(IBorrowRecordRepository repository)
         {
             _repository = repository;
         }
@@ -27,6 +27,21 @@ namespace WebLibrary4.Services
                 Id = record.Id,
                 BookId = record.BookId,
                 UserId = record.UserId,
+                BorrowDate = record.BorrowDate,
+                ReturnDate = record.ReturnDate
+            });
+        }
+        
+        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> GetDetailedBorrowRecordsAsync()
+        {
+            // Вызываем метод репозитория для получения данных
+            var detailedRecords = await _repository.GetDetailedBorrowRecordsAsync();
+
+            // Преобразуем данные из репозитория (если необходимо, тут уже совпадают DTO и возвращаемые поля)
+            return detailedRecords.Select(record => new BorrowRecordClientNameBookTitleDto
+            {
+                ClientName = record.ClientName,
+                BookTitle = record.BookTitle,
                 BorrowDate = record.BorrowDate,
                 ReturnDate = record.ReturnDate
             });
