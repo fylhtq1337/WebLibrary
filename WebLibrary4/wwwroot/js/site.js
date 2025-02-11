@@ -291,6 +291,7 @@ function loadBorrowRecords() {
         console.log("Полученные записи выдачи:", data);
         renderTable("#borrow-records-table", data, createBorrowRecordRow);
         addBorrowRecordHandlers();
+        addDeleteBorrowRecordHandlers();
     });
 }
 
@@ -331,6 +332,7 @@ function createBorrowRecordRow(record) {
             <td>${record.returnDate || "Не возвращено"}</td>
             <td>
                 <button class="btn btn-success btn-sm return-book" data-id="${record.id}">Вернуть</button>
+                <button class="btn btn-danger btn-sm delete-record" data-id="${record.id}">Удалить</button>
             </td>
         </tr>`;
 }
@@ -379,6 +381,40 @@ function addBorrowRecordHandlers() {
             console.error("Ошибка при возврате книги:", xhr.responseText);
             alert("Произошла ошибка при возврате книги. Проверьте лог.");
         });
+
+          
+    });
+    
+}
+
+function addDeleteBorrowRecordHandlers() {
+    $(".delete-record").off("click").on("click", function () {
+        const recordId = $(this).data("id");
+        console.log("Удалить запись с ID:", recordId);
+
+        if (!recordId || recordId === 0) {
+            alert("Не удалось получить ID записи для удаления.");
+            return;
+        }
+
+        if (confirm("Вы уверены, что хотите удалить эту запись?")) {
+            // Отправляем DELETE-запрос на сервер
+            sendRequest(
+                "DELETE",
+                `/api/borrow-records/delete/${recordId}`,
+                null,
+                function () {
+                    alert("Запись успешно удалена!");
+
+                    // Заново загружаем таблицу после успешного удаления
+                    loadBorrowRecords();
+                },
+                function (xhr) {
+                    console.error("Ошибка при удалении записи:", xhr.responseText);
+                    alert("Не удалось удалить запись. Проверьте данные.");
+                }
+            );
+        }
     });
 }
 
