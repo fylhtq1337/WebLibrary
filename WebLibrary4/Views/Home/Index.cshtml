@@ -108,11 +108,35 @@
 
         <div id="borrow-records-tab" class="tab-pane fade">
             <h2>Выдача книг</h2>
+            <div id="add-borrow-record-form" style="display: none;" class="mt-3">
+                <h4>Новая запись выдачи книги</h4>
+                <form>
+                    <div class="form-group">
+                        <label for="borrow-client">Выберите клиента:</label>
+                        <select id="borrow-client" class="form-control">
+                            <option value="">-- Выберете клиента --</option>
+                        </select>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="borrow-book">Выберите книгу:</label>
+                        <select id="borrow-book" class="form-control">
+                            <option value="">-- Выберите книгу --</option>
+                        </select>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="borrow-date">Дата выдачи:</label>
+                        <input id="borrow-date" type="date" class="form-control">
+                    </div>
+                    <button class="btn btn-success mt-3" id="submit-borrow-record">Создать запись</button>
+                </form>
+            </div>
+
+            <button class="btn btn-success" id="add-borrow-record-btn">Создать запись выдачи</button>
             <button class="btn btn-primary" id="load-borrow-records">Загрузить записи о выдаче</button>
             <table class="table" id="borrow-records-table">
                 <thead>
                 <tr>
-                     <th>Имя Клиента</th>
+                    <th>Имя Клиента</th>
                     <th>Название Книги</th>
                     <th>Дата выдачи</th>
                     <th>Дата возврата</th>
@@ -121,6 +145,7 @@
                 </thead>
                 <tbody></tbody>
             </table>
+            
         </div>
     </div>
 </div>

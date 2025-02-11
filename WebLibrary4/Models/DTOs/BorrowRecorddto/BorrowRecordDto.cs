@@ -7,7 +7,7 @@ public class BorrowRecordDto
     public int BookId { get; set; } // ID книги
         
  
-    public int UserId { get; set; } // ID пользователя
+    public int ClientId { get; set; } // ID пользователя
         
  
     public DateTime BorrowDate { get; set; } // Дата взятия

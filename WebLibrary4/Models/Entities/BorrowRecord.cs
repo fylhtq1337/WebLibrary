@@ -14,7 +14,7 @@ public class BorrowRecord
     
     [Required(ErrorMessage = "Пользователь должен быть указан.")]
     [ForeignKey("Clints")]
-    public int UserId { get; set; } // ID пользователя
+    public int ClientId { get; set; } // ID пользователя
     
      
     

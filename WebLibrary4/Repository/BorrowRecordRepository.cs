@@ -34,9 +34,9 @@ namespace WebLibrary4.Repositories
                         {
                             Id = reader.GetInt32(0),
                             BookId = reader.GetInt32(1),
-                             UserId = reader.GetInt32(2),
+                             ClientId = reader.GetInt32(2),
                              BorrowDate = reader.GetDateTime(3),
-                            ReturnDate = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(6)
+                            ReturnDate = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(4)
                         });
                     }
                 }
@@ -63,9 +63,9 @@ namespace WebLibrary4.Repositories
                         {
                             Id = reader.GetInt32(0),
                             BookId = reader.GetInt32(1),
-                             UserId = reader.GetInt32(3),
-                             BorrowDate = reader.GetDateTime(5),
-                            ReturnDate = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6)
+                             ClientId = reader.GetInt32(2),
+                             BorrowDate = reader.GetDateTime(3),
+                            ReturnDate = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(4)
                         };
                     }
                 }
@@ -82,14 +82,14 @@ namespace WebLibrary4.Repositories
                 await connection.OpenAsync();
 
                 var command = new NpgsqlCommand(
-                    @"INSERT INTO BorrowRecord (BookId, UserId, BorrowDate, ReturnDate) 
-                      VALUES (@BookId, @UserId,  @BorrowDate, @ReturnDate) 
+                    @"INSERT INTO BorrowRecord (BookId, ClientId, BorrowDate, ReturnDate) 
+                      VALUES (@BookId, @ClientId,  @BorrowDate, @ReturnDate) 
                       RETURNING Id", 
                     connection
                 );
 
                 command.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
-                 command.Parameters.AddWithValue("@UserId", borrowRecord.UserId);
+                 command.Parameters.AddWithValue("@ClientId", borrowRecord.ClientId);
                  command.Parameters.AddWithValue("@BorrowDate", borrowRecord.BorrowDate);
                 command.Parameters.AddWithValue("@ReturnDate", borrowRecord.ReturnDate ?? (object)DBNull.Value);
 
@@ -109,7 +109,7 @@ namespace WebLibrary4.Repositories
                     @"UPDATE BorrowRecord
                       SET BookId = @BookId, 
                           
-                          UserId = @UserId, 
+                          ClientId = @ClientId, 
                            
                           BorrowDate = @BorrowDate, 
                           ReturnDate = @ReturnDate 
@@ -119,7 +119,7 @@ namespace WebLibrary4.Repositories
 
                 command.Parameters.AddWithValue("@Id", borrowRecord.Id);
                 command.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
-                 command.Parameters.AddWithValue("@UserId", borrowRecord.UserId);
+                 command.Parameters.AddWithValue("@ClientId", borrowRecord.ClientId);
                  command.Parameters.AddWithValue("@BorrowDate", borrowRecord.BorrowDate);
                 command.Parameters.AddWithValue("@ReturnDate", borrowRecord.ReturnDate ?? (object)DBNull.Value);
 
@@ -143,7 +143,7 @@ namespace WebLibrary4.Repositories
                 br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
             FROM
                 BorrowRecord br
-                JOIN Clients c ON br.UserId = c.Id
+                JOIN Clients c ON br.ClientId = c.Id
                 JOIN Books b ON br.BookId = b.Id", 
                     connection
                 );

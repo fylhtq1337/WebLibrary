@@ -26,7 +26,7 @@ namespace WebLibrary4.Services
             {
                 Id = record.Id,
                 BookId = record.BookId,
-                UserId = record.UserId,
+                ClientId = record.ClientId,
                 BorrowDate = record.BorrowDate,
                 ReturnDate = record.ReturnDate
             });
@@ -62,7 +62,7 @@ namespace WebLibrary4.Services
             {
                 Id = borrowRecord.Id,
                 BookId = borrowRecord.BookId,
-                UserId = borrowRecord.UserId,
+                UserId = borrowRecord.ClientId,
                 BorrowDate = borrowRecord.BorrowDate,
                 ReturnDate = borrowRecord.ReturnDate,
                 Borrower = borrowRecord.Borrower != null ? new ClientDto
@@ -86,7 +86,7 @@ namespace WebLibrary4.Services
             var borrowRecord = new BorrowRecord
             {
                 BookId = borrowRecordDto.BookId,
-                UserId = borrowRecordDto.UserId,
+                ClientId = borrowRecordDto.ClientId,
                 BorrowDate = borrowRecordDto.BorrowDate,
                 ReturnDate = borrowRecordDto.ReturnDate
             };
@@ -103,7 +103,7 @@ namespace WebLibrary4.Services
             {
                 Id = borrowRecordDto.Id,
                 BookId = borrowRecordDto.BookId,
-                UserId = borrowRecordDto.UserId,
+                ClientId = borrowRecordDto.ClientId,
                 BorrowDate = borrowRecordDto.BorrowDate,
                 ReturnDate = borrowRecordDto.ReturnDate
             };

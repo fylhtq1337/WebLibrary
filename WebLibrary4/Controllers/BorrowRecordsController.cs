@@ -60,8 +60,18 @@ namespace WebLibrary4.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BorrowRecordDto dto)
         {
-            var newId = await _service.CreateBorrowAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = newId }, dto);
+            Console.WriteLine($"DTO: ClientId = {dto.ClientId}, BookId = {dto.BookId}, BorrowDate = {dto.BorrowDate}");
+
+            try
+            {
+                var newId = await _service.CreateBorrowAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = newId }, dto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+                return BadRequest("Произошла ошибка при создании записи выдачи.");
+            }
         }
 
         [HttpPut("update")]

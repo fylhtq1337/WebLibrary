@@ -65,19 +65,19 @@ VALUES ('example.pdf', NULL);
 SELECT * FROM PdfDocument;
 
 CREATE TABLE BorrowRecord (
-                              Id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,        -- Уникальный идентификатор записи
-                              BookId INT NOT NULL,                      -- Идентификатор книги
-                              UserId INT NOT NULL,                      -- Идентификатор пользователя
-                              BorrowDate DATE NOT NULL,                 -- Дата аренды
-                              ReturnDate DATE,                          -- Дата возврата (может быть NULL)
+                              Id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- Уникальный идентификатор записи
+                              BookId INT NOT NULL,                             -- Идентификатор книги
+                              ClientId INT NOT NULL,                           -- Идентификатор пользователя
+                              BorrowDate DATE NOT NULL,                        -- Дата аренды
+                              ReturnDate DATE,                                 -- Дата возврата (может быть NULL)
                               FOREIGN KEY (BookId) REFERENCES Books(Id) -- Связь с таблицей Books
                                   ON DELETE CASCADE,
-                              FOREIGN KEY (UserId) REFERENCES Clients(Id) -- Связь с таблицей Users
+                              FOREIGN KEY (ClientId) REFERENCES Clients(Id)    -- Связь с таблицей Users
                                   ON DELETE CASCADE
                                             
 );
 
-INSERT INTO BorrowRecord (BookId, UserId, BorrowDate, ReturnDate)
+INSERT INTO BorrowRecord (BookId, ClientId, BorrowDate, ReturnDate)
 VALUES (1, 1, '2023-10-20', NULL),
        (2, 3, '2023-10-20', NULL),
        (5, 4, '2023-10-20', NULL),
@@ -95,6 +95,10 @@ SELECT
 FROM
     BorrowRecord br
         JOIN
-    Clients c ON br.UserId = c.Id
+    Clients c ON br.ClientId = c.Id
         JOIN
-    Books b ON br.BookId = b.Id;  
+    Books b ON br.BookId = b.Id;
+
+
+SELECT column_name FROM information_schema.columns
+WHERE table_name = 'borrowrecord';

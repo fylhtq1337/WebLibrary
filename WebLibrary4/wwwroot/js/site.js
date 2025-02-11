@@ -293,6 +293,33 @@ function loadBorrowRecords() {
     });
 }
 
+function loadClientsForBorrow() {
+    sendRequest("GET", "/api/clients/get-all", null, function (data) {
+        const clientSelect = $("#borrow-client");
+        clientSelect.empty();
+        clientSelect.append('<option value="">-- Выберите клиента --</option>');
+        data.forEach(client => {
+            clientSelect.append(`<option value="${client.id}">${client.username}</option>`);
+        });
+    });
+}
+
+function loadBooksForBorrow() {
+    sendRequest("GET", "/api/books/get-all-simple", null, function (data) {
+        const bookSelect = $("#borrow-book");
+        bookSelect.empty();
+        bookSelect.append('<option value="">-- Выберите книгу --</option>');
+        data.forEach(book => {
+            bookSelect.append(`<option value="${book.id}">${book.title}</option>`);
+        });
+    });
+}
+$("#add-borrow-record-btn").on("click", function () {
+    $("#add-borrow-record-form").toggle(); // Показываем или скрываем форму
+    loadClientsForBorrow(); // Загрузка списка клиентов
+    loadBooksForBorrow();   // Загрузка списка книг
+});
+
 function createBorrowRecordRow(record) {
     return `
         <tr>
@@ -305,6 +332,32 @@ function createBorrowRecordRow(record) {
             </td>
         </tr>`;
 }
+$("#submit-borrow-record").on("click", function (event) {
+    event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+    const clientId = $("#borrow-client").val();
+    const bookId = $("#borrow-book").val();
+    const borrowDate = $("#borrow-date").val();
+
+    // Валидация полей
+    if (!validateField(clientId, "Выберите клиента!") ||
+        !validateField(bookId, "Выберите книгу!") ||
+        !validateField(borrowDate, "Укажите дату выдачи!")) {
+        return;
+    }
+
+    const borrowData = {
+        clientId: parseInt(clientId, 10),
+        bookId: parseInt(bookId, 10),
+        borrowDate: borrowDate
+    };
+
+    sendRequest("POST", "/api/borrow-records/create", borrowData, function () {
+        alert("Запись выдачи успешно создана!");
+        $("#add-borrow-record-form").hide(); // Скрываем форму
+        loadBorrowRecords(); // Перезагружаем список записей выдачи
+    });
+});
 
 function addBorrowRecordHandlers() {
     $(".return-book").on("click", function () {
