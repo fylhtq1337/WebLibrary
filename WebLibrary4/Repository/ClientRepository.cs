@@ -15,6 +15,39 @@ namespace WebLibrary4.Repositories
         {
             _connectionString = connectionString;
         }
+        
+        public async Task<IEnumerable<Clients>> SearchByNameAsync(string name)
+        {
+            var clients = new List<Clients>();
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                 
+                var query = @"SELECT * FROM Clients WHERE Username ILIKE '%' || @Name || '%'";
+                using (var command = new NpgsqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Name", name);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            clients.Add(new Clients
+                            {
+                                Id = reader.GetInt32(0),
+                                Username = reader.GetString(1),
+                                Email = reader.GetString(2),
+                                Role = reader.GetString(3)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return clients;
+        }
 
         public async Task<IEnumerable<Clients>> GetAllAsync()
         {

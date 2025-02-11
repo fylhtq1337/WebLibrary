@@ -15,6 +15,18 @@ namespace WebLibrary4.Services
         {
             _clientRepository = clientRepository;
         }
+        
+        public async Task<IEnumerable<Clients>> SearchByNameAsync(string name)
+        {
+            // Проверка на пустое или null имя
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Имя для поиска не может быть пустым.");
+            }
+
+            // Вызов метода репозитория
+            return await _clientRepository.SearchByNameAsync(name);
+        }
 
         public async Task<IEnumerable<Clients>> GetAllClientsAsync()
         {

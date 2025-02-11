@@ -15,6 +15,27 @@ namespace WebLibrary4.Controllers
         {
             _clientService = clientService;
         }
+        
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchByName([FromQuery] string name)
+        {
+            try
+            {
+                // Вызов метода сервиса
+                var clients = await _clientService.SearchByNameAsync(name);
+
+                if (!clients.Any())
+                {
+                    return NotFound($"Клиенты с именем '{name}' не найдены.");
+                }
+
+                return Ok(clients);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllClients()

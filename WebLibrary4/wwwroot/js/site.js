@@ -54,6 +54,7 @@ function validateEmail(email) {
 function loadClients() {
     sendRequest("GET", "/api/clients/get-all", null, function (data) {
         renderTable("#clients-table", data, createClientRow);
+        $("#clients-search-results").hide();
         addClientDeleteHandlers();
     });
 }
@@ -68,6 +69,42 @@ function createClientRow(client) {
             <td>
                 <button class="btn btn-danger btn-sm delete-client" data-id="${client.id}">Удалить</button>
             </td>
+        </tr>`;
+}
+
+// Логика поиска клиентов по имени
+$("#search-clients-btn").on("click", function () {
+    const clientName = $("#search-client-name").val().trim();
+
+    if (!clientName) {
+        alert("Введите имя клиента для поиска.");
+        return;
+    }
+
+    // Отправляем AJAX-запрос на сервер для поиска клиентов
+    sendRequest("GET", `/api/clients/search?name=${clientName}`, null, function (data) {
+        if (data.length === 0) {
+            alert("Клиенты не найдены.");
+            $("#clients-search-results").hide(); // Скрываем таблицу, если результатов нет
+            return;
+        }
+
+        // Рендер списка клиентов в таблицу
+        renderTable("#clients-search-results", data, createClientSearchRow);
+        $("#clients-search-results").show(); // Отображаем таблицу
+    }, function (xhr) {
+        console.error("Ошибка при поиске клиентов:", xhr.responseText);
+        alert(xhr.responseText || "Не удалось выполнить поиск.");
+    });
+});
+
+function createClientSearchRow(client) {
+    return `
+        <tr>
+            <td>${client.id}</td>
+            <td>${client.username}</td>
+            <td>${client.email || "N/A"}</td>
+            <td>${client.role || "Не указана"}</td>
         </tr>`;
 }
 
