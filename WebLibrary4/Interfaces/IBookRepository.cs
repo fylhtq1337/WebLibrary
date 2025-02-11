@@ -4,7 +4,8 @@ namespace WebLibrary4.Interfaces;
 
 public interface IBookRepository
 {
-    Task<IEnumerable<Books>> GetAllAsync();  
+    Task<IEnumerable<Books>> GetAllAsync();
+    Task<IEnumerable<Books>> SearchBooksAsync(string? title);
     Task<Books?> GetByIdAsync(int id);  
     Task<int> AddAsync(Books book);  
     Task UpdateAsync(Books book);  

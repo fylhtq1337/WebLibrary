@@ -6,6 +6,8 @@ namespace WebLibrary4.Interfaces;
 public interface IBookService
 {
     Task<int?> UploadPdfAsync(int bookId, IFormFile pdfFile);
+    Task<IEnumerable<Books>> SearchBooksAsync(string? title);
+
     Task<IEnumerable<Books>> GetAllBooksAsync();
     Task<Books?> GetBookByIdAsync(int id);
     Task<int> AddBookAsync(Books book);

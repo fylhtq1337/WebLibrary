@@ -14,6 +14,18 @@ namespace WebLibrary4.Services
             _bookRepository = bookRepository;
         }
         
+        public async Task<IEnumerable<Books>> SearchBooksAsync(string? title )
+        {
+            // Проверяем параметры, чтобы они не были пустыми, но обрабатываем все случаи
+            title = string.IsNullOrWhiteSpace(title) ? null : title;
+            
+
+            // Передаём параметры в репозиторий для выполнения поиска
+            var books = await _bookRepository.SearchBooksAsync(title);
+
+            return books; // Возвращаем найденные книги
+        }
+        
         public async Task<int?> UploadPdfAsync(int bookId, IFormFile pdfFile)
         {
             // 1. Проверяем, что файл передан

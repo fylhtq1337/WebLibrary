@@ -52,6 +52,29 @@
 
         <div id="books-tab" class="tab-pane fade">
             <h2>Книги</h2>
+            <div id="search-books">
+                <h4>Поиск книг</h4>
+                <div class="form-group">
+                    <input type="text" id="search-title" class="form-control" placeholder="Название книги">
+                </div>
+                
+                <button id="search-books-btn" class="btn btn-primary mt-2">Найти</button>
+            </div>
+
+            <table id="books-search-results" class="table mt-3">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Автор</th>
+                    <th>Жанр</th>
+                    <th>Год</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Данные будут рендериться динамически -->
+                </tbody>
+            </table>
             <button class="btn btn-primary" id="load-books">Открыть список книг</button>
             <button class="btn btn-success" id="add-book-btn" style="margin-left: 10px;">Добавить книгу</button>
             <div class="mt-3" id="add-book-form" style="display: none;">

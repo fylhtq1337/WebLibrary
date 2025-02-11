@@ -111,6 +111,38 @@ function loadBooks() {
     });
 }
 
+$("#search-books-btn").on("click", function () {
+    const title = $("#search-title").val().trim();
+    
+
+    // Собираем параметры запроса
+    const query = new URLSearchParams();
+    if (title) query.append("title", title);
+     
+
+    // Отправляем запрос к API
+    sendRequest("GET", `/api/books/search?${query.toString()}`, null, function (data) {
+        // Рендер списка книг
+        renderTable("#books-search-results", data, createBookRow);
+    }, function (xhr) {
+        // Если ответ не успешный
+        console.error("Ошибка поиска:", xhr.responseText);
+        alert(xhr.responseText || "Не удалось выполнить поиск.");
+    });
+});
+
+// Функция рендера строки книги
+function createBookRow(book) {
+    return `
+        <tr>
+            <td>${book.id}</td>
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.genre}</td>
+            <td>${book.year}</td>
+        </tr>`;
+}
+
 function createBookRow(book) {
     return `
         <tr>

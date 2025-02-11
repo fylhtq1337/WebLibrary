@@ -38,7 +38,18 @@ namespace WebLibrary4.Controllers
             }
         }
         
-        
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchBooks([FromQuery] string? title )
+        {
+            var books = await  _bookService.SearchBooksAsync(title);
+
+            if (!books.Any())
+            {
+                return NotFound("Книги не найдены.");
+            }
+
+            return Ok(books);
+        }
         
         
         [HttpGet("get-all-simple")]

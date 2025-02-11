@@ -15,6 +15,46 @@ namespace WebLibrary4.Repositories
             _connectionString = connectionString;
         }
         
+        public async Task<IEnumerable<Books>> SearchBooksAsync(string? title)
+        {
+            var books = new List<Books>();
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                // Основной SQL-запрос с фильтрацией
+                var query = @"SELECT * FROM Books WHERE 
+                      (@Title IS NULL OR Title ILIKE '%' || @Title || '%')";
+        
+                using (var command = new NpgsqlCommand(query, connection))
+                {
+                    // Добавляем параметры (сравнение iLIKE для нечувствительности к регистру)
+                    command.Parameters.AddWithValue("@Title", (object?)title ?? DBNull.Value);
+                     
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            books.Add(new Books
+                            {
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Author = reader.GetString(3),
+                                Genre = reader.GetString(4),
+                                Year = reader.GetInt32(5),
+                                Amount = reader.GetInt32(6)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return books;
+        }
+        
         public async Task<PdfDocument?> ReturnPdf(int id)
         {
             using (var connection = new NpgsqlConnection(_connectionString))

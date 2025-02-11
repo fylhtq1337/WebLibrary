@@ -7,6 +7,7 @@ public interface IBorrowRecordRepository
 {
     Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchBorrowRecordsAsync(string? bookTitle,
         string? clientName);
+    
     Task<IEnumerable<BorrowRecord>> GetAllAsync();
     Task<BorrowRecord?> GetByIdAsync(int id);
     Task<int> AddAsync(BorrowRecord borrowRecord);
