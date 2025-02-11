@@ -136,6 +136,19 @@ public async Task<int> AddAsync(BorrowRecord borrowRecord)
         {
             try
             {
+                // Проверить, доступна ли книга для выдачи
+                var checkAmountQuery = "SELECT Amount FROM Books WHERE Id = @BookId";
+                var commandCheckAmount = new NpgsqlCommand(checkAmountQuery, connection, transaction);
+                commandCheckAmount.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
+
+                var amount = await commandCheckAmount.ExecuteScalarAsync();
+                
+                // Конвертируем результат в int и проверяем количество книг
+                if (amount == null || Convert.ToInt32(amount) <= 0)
+                {
+                    throw new Exception("Книга недоступна для выдачи. Остаток экземпляров равен 0.");
+                }
+                
                 // Уменьшить количество книг, если доступные экземпляры больше 0
                 var updateBookQuery = @"
                     UPDATE Books
