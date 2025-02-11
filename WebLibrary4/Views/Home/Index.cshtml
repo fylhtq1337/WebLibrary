@@ -9,13 +9,13 @@
 </head>
 <body>
 <div class="container mt-4">
-    <h1>Library Management</h1>
+    <h1>Library</h1>
     <!-- Навигация -->
     <ul class="nav nav-tabs">
+        <li class="nav-item"><a href="#borrow-records-tab" class="nav-link" data-bs-toggle="tab">Выдача книг</a></li>
         <li class="nav-item"><a href="#clients-tab" class="nav-link active" data-bs-toggle="tab">Клиенты</a></li>
         <li class="nav-item"><a href="#books-tab" class="nav-link" data-bs-toggle="tab">Книги</a></li>
-        <li class="nav-item"><a href="#borrow-records-tab" class="nav-link" data-bs-toggle="tab">Выдача книг</a></li>
-    </ul>
+     </ul>
 
     <!-- Контент для каждой вкладки -->
     <div class="tab-content mt-3">
@@ -113,11 +113,11 @@
                 <form class="row g-3">
                     <div class="col-md-4">
                         <label for="search-book-title" class="form-label">Название книги:</label>
-                        <input id="search-book-title" type="text" class="form-control" placeholder="Например, 'Гарри Поттер'">
+                        <input id="search-book-title" type="text" class="form-control" placeholder=" ">
                     </div>
                     <div class="col-md-4">
                         <label for="search-client-name" class="form-label">Имя клиента:</label>
-                        <input id="search-client-name" type="text" class="form-control" placeholder="Например, 'Иван Иванов'">
+                        <input id="search-client-name" type="text" class="form-control" placeholder="">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button class="btn btn-primary" type="button" id="search-records">Искать</button>
@@ -161,7 +161,7 @@
             </div>
 
             <button class="btn btn-success" id="add-borrow-record-btn">Создать запись выдачи</button>
-            <button class="btn btn-primary" id="load-borrow-records">Загрузить записи о выдаче</button>
+            <button class="btn btn-primary" id="load-borrow-records">Показать список  записей о выдаче</button>
             <table class="table" id="borrow-records-table">
                 <thead>
                 <tr>

@@ -298,27 +298,36 @@ $("#search-records").on("click", function () {
     const bookTitle = $("#search-book-title").val().trim();
     const clientName = $("#search-client-name").val().trim();
 
-    // Отправляем GET-запрос на сервер
+     
     sendRequest("GET", `/api/borrow-records/search?bookTitle=${bookTitle}&clientName=${clientName}`, null, function (data) {
-        // Заполняем таблицу результатами поиска
+         
         renderTable("#search-results-table", data, createSearchResultRow);
     }, function (xhr) {
-        // Обработка ошибки
+         
         console.error("Ошибка выполнения поиска:", xhr.responseText);
         alert("Произошла ошибка при выполнении поиска.");
     });
 });
+// Функция для форматирования даты в формате "день-месяц-год"
+function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
 
-// Функция для создания строки в таблице результатов
+    // Настраиваем формат в стиле "11 февраля 2025"
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString("ru-RU", options);
+}
 function createSearchResultRow(record) {
     return `
         <tr>
             <td>${record.clientName}</td>
             <td>${record.bookTitle}</td>
-            <td>${record.borrowDate}</td>
-            <td>${record.returnDate || "Не возвращено"}</td>
+            <td>${formatDate(record.borrowDate)}</td>
+            <td>${record.returnDate ? formatDate(record.returnDate) : "Не возвращено"}</td>
         </tr>`;
 }
+
+
 
 function loadClientsForBorrow() {
     sendRequest("GET", "/api/clients/get-all", null, function (data) {
@@ -353,8 +362,8 @@ function createBorrowRecordRow(record) {
         <tr>
             <td>${record.bookTitle}</td>
             <td>${record.clientName}</td>
-            <td>${record.borrowDate}</td>
-            <td>${record.returnDate || "Не возвращено"}</td>
+            <td>${formatDate(record.borrowDate)}</td>
+            <td>${record.returnDate ? formatDate(record.returnDate) : "Не возвращено"}</td>
             <td>
                 <button class="btn btn-success btn-sm return-book" data-id="${record.id}">Вернуть</button>
                 <button class="btn btn-danger btn-sm delete-record" data-id="${record.id}">Удалить</button>
