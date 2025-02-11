@@ -16,16 +16,16 @@ namespace WebLibrary4.Repositories
             _connectionString = connectionString;
         }
         
-        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchBorrowRecordsAsync(string? bookTitle, string? clientName)
-{
-    var detailedRecords = new List<BorrowRecordClientNameBookTitleDto>();
+        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchByBookTitleAsync(string bookTitle)
+        {
+            var detailedRecords = new List<BorrowRecordClientNameBookTitleDto>();
 
-    using (var connection = new NpgsqlConnection(_connectionString))
-    {
-        await connection.OpenAsync();
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
 
-        // Формируем базовый SQL-запрос
-        var query = @"
+                // SQL-запрос: поиск только по названию книги
+                var query = @"
             SELECT
                 br.Id AS RecordId,
                 c.Username AS ClientName,      -- Имя клиента
@@ -37,35 +37,77 @@ namespace WebLibrary4.Repositories
                 JOIN Clients c ON br.ClientId = c.Id
                 JOIN Books b ON br.BookId = b.Id
             WHERE
-                (@BookTitle IS NULL OR b.Title ILIKE '%' || @BookTitle || '%') AND
-                (@ClientName IS NULL OR c.Username ILIKE '%' || @ClientName || '%')";
+                b.Title ILIKE '%' || @BookTitle || '%'";
+        
+                // Подготовка команды
+                var command = new NpgsqlCommand(query, connection);
+                command.Parameters.AddWithValue("@BookTitle", bookTitle);
 
-        // Подготавливаем команду с параметрами
-        var command = new NpgsqlCommand(query, connection);
-
-        // Добавляем параметры (null-значение для игнорирования фильтра)
-        command.Parameters.AddWithValue("@BookTitle", (object?)bookTitle ?? DBNull.Value);
-        command.Parameters.AddWithValue("@ClientName", (object?)clientName ?? DBNull.Value);
-
-        using (var reader = await command.ExecuteReaderAsync())
-        {
-            while (await reader.ReadAsync())
-            {
-                detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    Id = reader.GetInt32(0),                              // Id записи 
-                    ClientName = reader.GetString(1),                     // Имя клиента
-                    BookTitle = reader.GetString(2),                      // Название книги
-                    BorrowDate = reader.GetDateTime(3),                   // Дата выдачи
-                    ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // Дата возврата
-                });
+                    while (await reader.ReadAsync())
+                    {
+                        detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
+                        {
+                            Id = reader.GetInt32(0),                              // RecordId (Id)
+                            ClientName = reader.GetString(1),                     // ClientName
+                            BookTitle = reader.GetString(2),                      // BookTitle
+                            BorrowDate = reader.GetDateTime(3),                   // BorrowDate
+                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // ReturnDate
+                        });
+                    }
+                }
             }
+
+            return detailedRecords;
         }
-    }
+        
+        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchByClientNameAsync(string clientName)
+        {
+            var detailedRecords = new List<BorrowRecordClientNameBookTitleDto>();
 
-    return detailedRecords;
-}
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
 
+                // SQL-запрос: поиск только по имени клиента
+                var query = @"
+            SELECT
+                br.Id AS RecordId,
+                c.Username AS ClientName,      -- Имя клиента
+                b.Title AS BookTitle,          -- Название книги
+                br.BorrowDate AS BorrowDate,   -- Дата взятия книги
+                br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+            FROM
+                BorrowRecord br
+                JOIN Clients c ON br.ClientId = c.Id
+                JOIN Books b ON br.BookId = b.Id
+            WHERE
+                c.Username ILIKE '%' || @ClientName || '%'";
+                
+                // Подготовка команды
+                var command = new NpgsqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ClientName", clientName);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
+                        {
+                            Id = reader.GetInt32(0),                              // RecordId (Id)
+                            ClientName = reader.GetString(1),                     // ClientName
+                            BookTitle = reader.GetString(2),                      // BookTitle
+                            BorrowDate = reader.GetDateTime(3),                   // BorrowDate
+                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // ReturnDate
+                        });
+                    }
+                }
+            }
+
+            return detailedRecords;
+        }
+        
         // Получить все записи
         public async Task<IEnumerable<BorrowRecord>> GetAllAsync()
         {

@@ -15,9 +15,16 @@ namespace WebLibrary4.Services
         {
             _repository = repository;
         }
-        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchBorrowRecords(string? bookTitle, string? clientName)
+        public async  Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchByBookTitle(string bookTitle)
         {
-            return await _repository.SearchBorrowRecordsAsync(bookTitle, clientName);
+            var results = await _repository.SearchByBookTitleAsync(bookTitle);
+            return  results;
+        }
+
+        public async  Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchByClientName(string clientName)
+        {
+            var results = await _repository.SearchByClientNameAsync(clientName);
+            return results;
         }
 
         // Получение всех записей

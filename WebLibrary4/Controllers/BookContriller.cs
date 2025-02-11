@@ -182,11 +182,11 @@ namespace WebLibrary4.Controllers
 
                 // Маппинг BookRequestDto -> Books
                 var book = _mapper.Map<Books>(bookDto);
-                await _bookService.AddBookAsync(book);
+                book.Id = await _bookService.AddBookAsync(book);
 
                 // Маппинг результата Books -> BookResponseDto
-                var bookResponse = _mapper.Map<BookResponseDto>(book);
-                book.Id = await _bookService.AddBookAsync(book);
+                var bookResponse = _mapper.Map<BookResponseDto>(book); 
+                
                 return CreatedAtAction(nameof(GetById), new { id = book.Id }, bookResponse);
             }
             catch (ArgumentException ex) // Если AddBookAsync выбрасывает ArgumentException

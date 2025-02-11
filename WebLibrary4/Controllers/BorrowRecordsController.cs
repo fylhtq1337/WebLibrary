@@ -92,34 +92,64 @@ namespace WebLibrary4.Controllers
 
             return NoContent();
         }
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchRecords([FromQuery] string? bookTitle, [FromQuery] string? clientName)
+        [HttpGet("search-by-book")]
+        public async Task<IActionResult> SearchByBookTitle([FromQuery] string bookTitle)
         {
+            if (string.IsNullOrWhiteSpace(bookTitle))
+                return BadRequest("Название книги не должно быть пустым.");
+
             try
             {
-                // Вызываем метод сервиса для поиска записей по названию книги и имени клиента
-                var records = await _service.SearchBorrowRecords(bookTitle, clientName);
+                var results = await _service.SearchByBookTitle(bookTitle);
 
-                // Если ничего не найдено, возвращаем пустой список или статус 404
-                if (!records.Any())
-                    return NotFound(new { Message = "Записи не найдены." });
+                if (!results.Any())
+                    return NotFound("Нет записей, связанных с указанной книгой.");
 
-                // Возвращаем найденные записи
-                return Ok(records);
+                return Ok(results);
             }
             catch (Exception ex)
             {
-                // Логируем ошибку, если что-то пошло не так
-                Console.WriteLine($"Ошибка поиска записей: {ex.Message}");
+                // Логирование ошибки
+                Console.WriteLine($"Ошибка поиска книги: {ex.Message}");
 
-                // Возвращаем статус 500 с информацией об ошибке
+                // Возвращаем код 500 (внутренняя ошибка сервера)
                 return StatusCode(500, new
                 {
-                    Error = "Произошла ошибка при выполнении поиска.",
+                    Error = "Внутренняя ошибка сервера",
                     Message = ex.Message
                 });
             }
-        } 
+        }
+        
+        [HttpGet("search-by-client")]
+        public async Task<IActionResult> SearchByClientName([FromQuery] string clientName)
+        {
+            if (string.IsNullOrWhiteSpace(clientName))
+                return BadRequest("Имя клиента не должно быть пустым.");
+
+            try
+            {
+                var results = await _service.SearchByClientName(clientName);
+
+                if (!results.Any())
+                    return NotFound("Нет записей, связанных с указанным клиентом.");
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                Console.WriteLine($"Ошибка поиска клиента: {ex.Message}");
+
+                // Возвращаем код 500 (внутренняя ошибка сервера)
+                return StatusCode(500, new
+                {
+                    Error = "Внутренняя ошибка сервера",
+                    Message = ex.Message
+                });
+            }
+        }   
+        
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)

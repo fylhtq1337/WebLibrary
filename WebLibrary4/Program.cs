@@ -83,7 +83,7 @@ void ConfigureMiddleware(WebApplication app)
     app.UseHttpsRedirection();
     app.UseRouting();
 
-    app.UseAuthorization();
+     
 
     // Маршрутизация и инициализация статических файлов
     app.MapStaticAssets();

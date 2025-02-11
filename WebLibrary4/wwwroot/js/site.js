@@ -241,8 +241,9 @@ function addBookDeleteHandlers() {
         });
     });
 }
-$("#submit-book").on("click",async function (event) {
-    event.preventDefault(); // Останавливаем отправку формы
+$("#submit-book").off("click").on("click", async function (event) {
+ 
+     event.preventDefault(); // Останавливаем отправку формы
 
     const title = $("#book-title").val().trim();
     const author = $("#book-author").val().trim();
@@ -283,7 +284,7 @@ $("#submit-book").on("click",async function (event) {
 
         // Обновление интерфейса
         $("#add-book-form").hide(); // Закрываем форму добавления книги
-        loadBooks(); // Обновляем список книг
+        // loadBooks(); // Обновляем список книг
     } catch (error) {
         console.error("Ошибка при добавлении книги:", error);
         alert("Ошибка при добавлении книги. Проверьте данные!");
@@ -363,20 +364,52 @@ function loadBorrowRecords() {
         addDeleteBorrowRecordHandlers();
     });
 }
-$("#search-records").on("click", function () {
+function searchRecordsByBookTitle() {
     const bookTitle = $("#search-book-title").val().trim();
-    const clientName = $("#search-client-name").val().trim();
 
-     
-    sendRequest("GET", `/api/borrow-records/search?bookTitle=${bookTitle}&clientName=${clientName}`, null, function (data) {
-         
+    if (!bookTitle) {
+        alert("Введите название книги для поиска.");
+        return;
+    }
+
+    // Выполняем AJAX-запрос для поиска по книге
+    sendRequest("GET", `/api/borrow-records/search-by-book?bookTitle=${bookTitle}`, null, function (data) {
+        if (!data.length) {
+            alert("Записи не найдены по указанной книге.");
+            return;
+        }
+
+        // Рендерим результаты поиска в таблицу
         renderTable("#search-results-table", data, createSearchResultRow);
     }, function (xhr) {
-         
-        console.error("Ошибка выполнения поиска:", xhr.responseText);
-        alert("Произошла ошибка при выполнении поиска.");
+        console.error("Ошибка поиска записей по книге:", xhr.responseText);
+        alert("Произошла ошибка при выполнении поиска по книге.");
     });
-});
+}
+
+function searchRecordsByClientName() {
+    const clientName = $("#search-client-name").val().trim();
+
+    if (!clientName) {
+        alert("Введите имя клиента для поиска.");
+        return;
+    }
+
+    // Выполняем AJAX-запрос для поиска по клиенту
+    sendRequest("GET", `/api/borrow-records/search-by-client?clientName=${clientName}`, null, function (data) {
+        if (!data.length) {
+            alert("Записи не найдены по указанному клиенту.");
+            return;
+        }
+
+        // Рендерим результаты поиска в таблицу
+        renderTable("#search-results-table", data, createSearchResultRow);
+    }, function (xhr) {
+        console.error("Ошибка поиска записей по клиенту:", xhr.responseText);
+        alert("Произошла ошибка при выполнении поиска по клиенту.");
+    });
+}
+
 // Функция для форматирования даты в формате "день-месяц-год"
 function formatDate(dateString) {
     if (!dateString) return "";
@@ -557,4 +590,14 @@ $(document).ready(function () {
     $("#add-book-btn").on("click", function () {
         $("#add-book-form").toggle();
     });
+    // Поиск записей по названию книги
+    $("#search-records-by-book").on("click", function () {
+        searchRecordsByBookTitle();
+    });
+
+    // Поиск записей по имени клиента
+    $("#search-records-by-client").on("click", function () {
+        searchRecordsByClientName();
+    });
+    
 });

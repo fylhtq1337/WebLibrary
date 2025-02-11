@@ -153,16 +153,18 @@
             <div id="search-borrow-records-form" class="mt-4">
                 <h4>Поиск записей выдачи</h4>
                 <form class="row g-3">
-                    <div class="col-md-4">
+                    <!-- Форма поиска по книге -->
+                    <div class="col-md-6">
                         <label for="search-book-title" class="form-label">Название книги:</label>
-                        <input id="search-book-title" type="text" class="form-control" placeholder=" ">
+                        <input id="search-book-title" type="text" class="form-control" placeholder="Введите название книги">
+                        <button class="btn btn-primary mt-2" type="button" id="search-records-by-book">Искать по книге</button>
                     </div>
-                    <div class="col-md-4">
+
+                    <!-- Форма поиска по клиенту -->
+                    <div class="col-md-6">
                         <label for="search-client-name" class="form-label">Имя клиента:</label>
-                        <input id="search-client-name" type="text" class="form-control" placeholder="">
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button class="btn btn-primary" type="button" id="search-records">Искать</button>
+                        <input id="search-client-name" type="text" class="form-control" placeholder="Введите имя клиента">
+                        <button class="btn btn-primary mt-2" type="button" id="search-records-by-client">Искать по клиенту</button>
                     </div>
                 </form>
             </div>
