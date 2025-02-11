@@ -288,6 +288,7 @@ function loadBooks() {
 // ----------------------------
 function loadBorrowRecords() {
     sendRequest("GET", "/api/borrow-records/get-detailed", null, function (data) {
+        console.log("Полученные записи выдачи:", data);
         renderTable("#borrow-records-table", data, createBorrowRecordRow);
         addBorrowRecordHandlers();
     });
@@ -321,6 +322,7 @@ $("#add-borrow-record-btn").on("click", function () {
 });
 
 function createBorrowRecordRow(record) {
+    console.log("Borrow record:", record);
     return `
         <tr>
             <td>${record.bookTitle}</td>
@@ -361,11 +363,21 @@ $("#submit-borrow-record").on("click", function (event) {
 
 function addBorrowRecordHandlers() {
     $(".return-book").on("click", function () {
-        const recordId = $(this).data("id");
-        const updateData = { id: recordId, returnDate: new Date().toISOString() };
-        sendRequest("PUT", "/api/borrow-records/update", updateData, function () {
-            alert("Книга возвращена!");
-            loadBorrowRecords();
+        const recordId = $(this).data("id"); // Берем ID записи из кнопки
+        console.log("Record ID:", recordId);
+        if (!recordId) {
+            console.error("Не удалось получить ID записи.");
+            alert("Не удалось получить идентификатор записи.");
+            return;
+        }
+
+        // Отправить PUT-запрос на сервер для возврата книги
+        sendRequest("PUT", `/api/borrow-records/return/${recordId}`, null, function () {
+            alert("Книга успешно возвращена!");
+            loadBorrowRecords(); // Перезагружаем список записей
+        }, function (xhr) {
+            console.error("Ошибка при возврате книги:", xhr.responseText);
+            alert("Произошла ошибка при возврате книги. Проверьте лог.");
         });
     });
 }

@@ -88,6 +88,7 @@ VALUES (1, 1, '2023-10-20', NULL),
 SELECT * FROM BorrowRecord;
 
 SELECT
+    br.Id AS RecordId,
     c.Username AS ClientName,      -- Имя клиента
     b.Title AS BookTitle,          -- Название книги
     br.BorrowDate AS BorrowDate,   -- Дата взятия книги

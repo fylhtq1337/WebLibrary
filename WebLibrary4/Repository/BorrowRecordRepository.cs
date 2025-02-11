@@ -1,4 +1,5 @@
  
+using System.Diagnostics;
 using Npgsql;
 using WebLibrary4.Interfaces;
 using WebLibrary4.Models.DTOs.BorrowRecorddto;
@@ -137,6 +138,7 @@ namespace WebLibrary4.Repositories
 
                 var command = new NpgsqlCommand(@"
             SELECT
+                br.Id AS RecordId,
                 c.Username AS ClientName,      -- Имя клиента
                 b.Title AS BookTitle,          -- Название книги
                 br.BorrowDate AS BorrowDate,   -- Дата взятия книги
@@ -152,12 +154,15 @@ namespace WebLibrary4.Repositories
                 {
                     while (await reader.ReadAsync())
                     {
+                        int recordId = reader.GetInt32(0);
+                        Debug.WriteLine($"Record ID fetched from DB: {recordId}");
                         detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
                         {
-                            ClientName = reader.GetString(0),                        // ClientName
-                            BookTitle = reader.GetString(1),                        // BookTitle
-                            BorrowDate = reader.GetDateTime(2),                     // BorrowDate
-                            ReturnDate = reader.IsDBNull(3) ? null : reader.GetDateTime(3) // ReturnDate
+                            Id = reader.GetInt32(0),                              // RecordId (Id)
+                            ClientName = reader.GetString(1),                     // ClientName
+                            BookTitle = reader.GetString(2),                      // BookTitle
+                            BorrowDate = reader.GetDateTime(3),                   // BorrowDate
+                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // ReturnDate
                         });
                     }
                 }

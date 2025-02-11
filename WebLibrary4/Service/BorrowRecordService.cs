@@ -40,6 +40,7 @@ namespace WebLibrary4.Services
             // Преобразуем данные из репозитория (если необходимо, тут уже совпадают DTO и возвращаемые поля)
             return detailedRecords.Select(record => new BorrowRecordClientNameBookTitleDto
             {
+                Id = record.Id,
                 ClientName = record.ClientName,
                 BookTitle = record.BookTitle,
                 BorrowDate = record.BorrowDate,
@@ -110,6 +111,19 @@ namespace WebLibrary4.Services
 
             // Вызываем метод репозитория
             await _repository.UpdateAsync(borrowRecord);
+        }
+        
+        public async Task<bool> MarkAsReturnedAsync(int id)
+        {
+            var record = await _repository.GetByIdAsync(id);
+
+            if (record == null)
+                return false; // Запись не найдена
+
+            record.ReturnDate = DateTime.UtcNow; // Устанавливаем дату возврата (текущая)
+            await _repository.UpdateAsync(record);
+
+            return true;
         }
 
         // Удаление записи

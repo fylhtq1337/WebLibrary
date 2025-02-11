@@ -80,6 +80,18 @@ namespace WebLibrary4.Controllers
             await _service.UpdateAsync(dto);
             return NoContent();
         }
+        
+        [HttpPut("return/{id}")]
+        public async Task<IActionResult> ReturnBook(int id)
+        {
+            // Устанавливаем дату возврата для записи
+            var updated = await _service.MarkAsReturnedAsync(id);
+
+            if (!updated)
+                return NotFound(); // Если запись с указанным Id не найдена
+
+            return NoContent();
+        }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)

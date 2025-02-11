@@ -7,7 +7,8 @@ namespace WebLibrary4.Interfaces
         Task<IEnumerable<BorrowRecordDto>> GetAllAsync();  
         Task<BorrowRecordDetailsDto?> GetByIdAsync(int id);  
         Task<int> CreateBorrowAsync(BorrowRecordDto borrowRecordDto);  
-        Task UpdateAsync(BorrowRecordDto borrowRecordDto);  
+        Task UpdateAsync(BorrowRecordDto borrowRecordDto);
+        Task<bool> MarkAsReturnedAsync(int id);
         Task<bool> DeleteAsync(int id);  
 
         Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> GetDetailedBorrowRecordsAsync();

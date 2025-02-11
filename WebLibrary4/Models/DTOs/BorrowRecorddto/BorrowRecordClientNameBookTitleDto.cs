@@ -2,6 +2,7 @@ namespace WebLibrary4.Models.DTOs.BorrowRecorddto;
 
 public class BorrowRecordClientNameBookTitleDto
 {
+    public int Id { get; set; }
     public string ClientName { get; set; } = string.Empty;  
     public string BookTitle { get; set; } = string.Empty;   
     public DateTime BorrowDate { get; set; }               
