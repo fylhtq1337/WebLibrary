@@ -92,6 +92,34 @@ namespace WebLibrary4.Controllers
 
             return NoContent();
         }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchRecords([FromQuery] string? bookTitle, [FromQuery] string? clientName)
+        {
+            try
+            {
+                // Вызываем метод сервиса для поиска записей по названию книги и имени клиента
+                var records = await _service.SearchBorrowRecords(bookTitle, clientName);
+
+                // Если ничего не найдено, возвращаем пустой список или статус 404
+                if (!records.Any())
+                    return NotFound(new { Message = "Записи не найдены." });
+
+                // Возвращаем найденные записи
+                return Ok(records);
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку, если что-то пошло не так
+                Console.WriteLine($"Ошибка поиска записей: {ex.Message}");
+
+                // Возвращаем статус 500 с информацией об ошибке
+                return StatusCode(500, new
+                {
+                    Error = "Произошла ошибка при выполнении поиска.",
+                    Message = ex.Message
+                });
+            }
+        } 
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)

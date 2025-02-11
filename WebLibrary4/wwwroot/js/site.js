@@ -294,6 +294,31 @@ function loadBorrowRecords() {
         addDeleteBorrowRecordHandlers();
     });
 }
+$("#search-records").on("click", function () {
+    const bookTitle = $("#search-book-title").val().trim();
+    const clientName = $("#search-client-name").val().trim();
+
+    // Отправляем GET-запрос на сервер
+    sendRequest("GET", `/api/borrow-records/search?bookTitle=${bookTitle}&clientName=${clientName}`, null, function (data) {
+        // Заполняем таблицу результатами поиска
+        renderTable("#search-results-table", data, createSearchResultRow);
+    }, function (xhr) {
+        // Обработка ошибки
+        console.error("Ошибка выполнения поиска:", xhr.responseText);
+        alert("Произошла ошибка при выполнении поиска.");
+    });
+});
+
+// Функция для создания строки в таблице результатов
+function createSearchResultRow(record) {
+    return `
+        <tr>
+            <td>${record.clientName}</td>
+            <td>${record.bookTitle}</td>
+            <td>${record.borrowDate}</td>
+            <td>${record.returnDate || "Не возвращено"}</td>
+        </tr>`;
+}
 
 function loadClientsForBorrow() {
     sendRequest("GET", "/api/clients/get-all", null, function (data) {
@@ -386,6 +411,17 @@ function addBorrowRecordHandlers() {
     });
     
 }
+
+$("#search-records").on("click", function () {
+    const bookTitle = $("#search-book-title").val().trim();
+    const clientName = $("#search-client-name").val().trim();
+
+    // Выполняем AJAX-запрос к API для поиска записей
+    sendRequest("GET", `/api/borrow-records/search?bookTitle=${bookTitle}&clientName=${clientName}`, null, function (data) {
+        renderTable("#borrow-records-table", data, createBorrowRecordRow);
+    });
+});
+
 
 function addDeleteBorrowRecordHandlers() {
     $(".delete-record").off("click").on("click", function () {

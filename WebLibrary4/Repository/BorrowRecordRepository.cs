@@ -15,6 +15,56 @@ namespace WebLibrary4.Repositories
         {
             _connectionString = connectionString;
         }
+        
+        public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> SearchBorrowRecordsAsync(string? bookTitle, string? clientName)
+{
+    var detailedRecords = new List<BorrowRecordClientNameBookTitleDto>();
+
+    using (var connection = new NpgsqlConnection(_connectionString))
+    {
+        await connection.OpenAsync();
+
+        // Формируем базовый SQL-запрос
+        var query = @"
+            SELECT
+                br.Id AS RecordId,
+                c.Username AS ClientName,      -- Имя клиента
+                b.Title AS BookTitle,          -- Название книги
+                br.BorrowDate AS BorrowDate,   -- Дата взятия книги
+                br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+            FROM
+                BorrowRecord br
+                JOIN Clients c ON br.ClientId = c.Id
+                JOIN Books b ON br.BookId = b.Id
+            WHERE
+                (@BookTitle IS NULL OR b.Title ILIKE '%' || @BookTitle || '%') AND
+                (@ClientName IS NULL OR c.Username ILIKE '%' || @ClientName || '%')";
+
+        // Подготавливаем команду с параметрами
+        var command = new NpgsqlCommand(query, connection);
+
+        // Добавляем параметры (null-значение для игнорирования фильтра)
+        command.Parameters.AddWithValue("@BookTitle", (object?)bookTitle ?? DBNull.Value);
+        command.Parameters.AddWithValue("@ClientName", (object?)clientName ?? DBNull.Value);
+
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+            while (await reader.ReadAsync())
+            {
+                detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
+                {
+                    Id = reader.GetInt32(0),                              // Id записи 
+                    ClientName = reader.GetString(1),                     // Имя клиента
+                    BookTitle = reader.GetString(2),                      // Название книги
+                    BorrowDate = reader.GetDateTime(3),                   // Дата выдачи
+                    ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // Дата возврата
+                });
+            }
+        }
+    }
+
+    return detailedRecords;
+}
 
         // Получить все записи
         public async Task<IEnumerable<BorrowRecord>> GetAllAsync()
