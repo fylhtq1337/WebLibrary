@@ -125,58 +125,127 @@ namespace WebLibrary4.Repositories
             return null;
         }
 
-        // Добавить новую запись
-        public async Task<int> AddAsync(BorrowRecord borrowRecord)
+        // Добавить новую запись и уменьшить количество доступных книг
+public async Task<int> AddAsync(BorrowRecord borrowRecord)
+{
+    using (var connection = new NpgsqlConnection(_connectionString))
+    {
+        await connection.OpenAsync();
+
+        using (var transaction = await connection.BeginTransactionAsync())
         {
-            using (var connection = new NpgsqlConnection(_connectionString))
+            try
             {
-                await connection.OpenAsync();
+                // Уменьшить количество книг, если доступные экземпляры больше 0
+                var updateBookQuery = @"
+                    UPDATE Books
+                    SET Amount = Amount - 1
+                    WHERE Id = @BookId AND Amount > 0
+                    RETURNING Amount";
 
-                var command = new NpgsqlCommand(
-                    @"INSERT INTO BorrowRecord (BookId, ClientId, BorrowDate, ReturnDate) 
-                      VALUES (@BookId, @ClientId,  @BorrowDate, @ReturnDate) 
-                      RETURNING Id", 
-                    connection
-                );
+                var commandUpdateBook = new NpgsqlCommand(updateBookQuery, connection, transaction);
+                commandUpdateBook.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
 
-                command.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
-                 command.Parameters.AddWithValue("@ClientId", borrowRecord.ClientId);
-                 command.Parameters.AddWithValue("@BorrowDate", borrowRecord.BorrowDate);
-                command.Parameters.AddWithValue("@ReturnDate", borrowRecord.ReturnDate ?? (object)DBNull.Value);
+                // Получаем новое значение Amount
+                var updatedAmount = await commandUpdateBook.ExecuteScalarAsync();
+                if (updatedAmount == null)
+                {
+                    throw new Exception("Книга недоступна для выдачи (количество экземпляров = 0).");
+                }
 
-                var result = await command.ExecuteScalarAsync();
+                // Добавление новой записи в BorrowRecord
+                var insertQuery = @"
+                    INSERT INTO BorrowRecord (BookId, ClientId, BorrowDate, ReturnDate) 
+                    VALUES (@BookId, @ClientId, @BorrowDate, @ReturnDate) 
+                    RETURNING Id";
+
+                var commandInsert = new NpgsqlCommand(insertQuery, connection, transaction);
+                commandInsert.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
+                commandInsert.Parameters.AddWithValue("@ClientId", borrowRecord.ClientId);
+                commandInsert.Parameters.AddWithValue("@BorrowDate", borrowRecord.BorrowDate);
+                commandInsert.Parameters.AddWithValue("@ReturnDate", borrowRecord.ReturnDate ?? (object)DBNull.Value);
+
+                var result = await commandInsert.ExecuteScalarAsync();
+
+                // Фиксация транзакции
+                await transaction.CommitAsync();
+
                 return Convert.ToInt32(result);
             }
-        }
-
-        // Обновить запись
-        public async Task UpdateAsync(BorrowRecord borrowRecord)
-        {
-            using (var connection = new NpgsqlConnection(_connectionString))
+            catch
             {
-                await connection.OpenAsync();
-
-                var command = new NpgsqlCommand(
-                    @"UPDATE BorrowRecord
-                      SET BookId = @BookId, 
-                          
-                          ClientId = @ClientId, 
-                           
-                          BorrowDate = @BorrowDate, 
-                          ReturnDate = @ReturnDate 
-                      WHERE Id = @Id", 
-                    connection
-                );
-
-                command.Parameters.AddWithValue("@Id", borrowRecord.Id);
-                command.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
-                 command.Parameters.AddWithValue("@ClientId", borrowRecord.ClientId);
-                 command.Parameters.AddWithValue("@BorrowDate", borrowRecord.BorrowDate);
-                command.Parameters.AddWithValue("@ReturnDate", borrowRecord.ReturnDate ?? (object)DBNull.Value);
-
-                await command.ExecuteNonQueryAsync();
+                await transaction.RollbackAsync();
+                throw;
             }
         }
+    }
+}
+
+       // Обновить запись и вернуть книгу
+public async Task UpdateAsync(BorrowRecord borrowRecord)
+{
+    using (var connection = new NpgsqlConnection(_connectionString))
+    {
+        await connection.OpenAsync();
+
+        using (var transaction = await connection.BeginTransactionAsync())
+        {
+            try
+            {
+                // Проверить, была ли книга уже возвращена
+                var checkQuery = @"
+                    SELECT ReturnDate
+                    FROM BorrowRecord
+                    WHERE Id = @Id";
+
+                var commandCheck = new NpgsqlCommand(checkQuery, connection, transaction);
+                commandCheck.Parameters.AddWithValue("@Id", borrowRecord.Id);
+
+                var existingReturnDate = await commandCheck.ExecuteScalarAsync();
+                if (existingReturnDate != DBNull.Value && existingReturnDate != null)
+                {
+                    throw new Exception("Книга уже возвращена.");
+                }
+
+                // Увеличить количество доступных книг
+                var updateBookQuery = @"
+                    UPDATE Books
+                    SET Amount = Amount + 1
+                    WHERE Id = @BookId";
+
+                var commandUpdateBook = new NpgsqlCommand(updateBookQuery, connection, transaction);
+                commandUpdateBook.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
+                await commandUpdateBook.ExecuteNonQueryAsync();
+
+                // Обновить запись BorrowRecord
+                var updateBorrowRecordQuery = @"
+                    UPDATE BorrowRecord
+                    SET BookId = @BookId,
+                        ClientId = @ClientId,
+                        BorrowDate = @BorrowDate,
+                        ReturnDate = @ReturnDate
+                    WHERE Id = @Id";
+
+                var commandUpdateBorrowRecord = new NpgsqlCommand(updateBorrowRecordQuery, connection, transaction);
+                commandUpdateBorrowRecord.Parameters.AddWithValue("@Id", borrowRecord.Id);
+                commandUpdateBorrowRecord.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
+                commandUpdateBorrowRecord.Parameters.AddWithValue("@ClientId", borrowRecord.ClientId);
+                commandUpdateBorrowRecord.Parameters.AddWithValue("@BorrowDate", borrowRecord.BorrowDate);
+                commandUpdateBorrowRecord.Parameters.AddWithValue("@ReturnDate", borrowRecord.ReturnDate ?? (object)DBNull.Value);
+
+                await commandUpdateBorrowRecord.ExecuteNonQueryAsync();
+
+                // Фиксация транзакции
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+    }
+}
         
         public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> GetDetailedBorrowRecordsAsync()
         {
