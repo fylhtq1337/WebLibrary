@@ -195,86 +195,51 @@ namespace WebLibrary4.Controllers
                 });
             }
         }
-       
         
         [HttpPost("{bookId}/add-pdf")]
         public async Task<IActionResult> UploadPdf(int bookId, [FromForm] IFormFile pdfFile)
         {
             try
             {
-        // Проверяем, что файл передан
-        if (pdfFile == null)
-        {
-            return BadRequest(new
+                // Вызываем сервис для обработки загрузки
+                var pdfId = await _bookService.UploadPdfAsync(bookId, pdfFile);
+
+                // Проверяем результат и возвращаем успешный ответ
+                return Ok(new
+                {
+                    Message = "PDF успешно добавлен.",
+                    PdfId = pdfId
+                });
+            }
+            catch (ArgumentException ex)
             {
-                Error = "Файл не передан",
-                Details = "Пожалуйста, загрузите PDF-файл."
-            });
-        }
-
-        // Проверяем MIME-тип файла
-        if (pdfFile.ContentType != "application/pdf")
-        {
-            return BadRequest(new
+                // Ошибки валидации и проверки файла
+                return BadRequest(new
+                {
+                    Error = ex.Message
+                });
+            }
+            catch (KeyNotFoundException ex)
             {
-                Error = "Некорректный файл",
-                Details = "Допускаются только PDF-файлы."
-            });
-        }
-
-        // Ограничиваем размер файла (например, 500 МБ)
-        const long maxFileSize = 500L * 1024 * 1024; // 500 MB
-        if (pdfFile.Length > maxFileSize)
-        {
-            return BadRequest(new
+                // Ошибка: книга не найдена
+                return NotFound(new
+                {
+                    Error = ex.Message
+                });
+            }
+            catch (Exception ex)
             {
-                Error = "Превышен допустимый размер файла",
-                Details = $"Размер файла не должен превышать {maxFileSize / (1024 * 1024)} MB."
-            });
+                // Общая обработка ошибок
+                return StatusCode(500, new
+                {
+                    Error = "Внутренняя ошибка сервера.",
+                    Details = ex.Message
+                });
+            }
         }
-
-        // Читаем содержимое файла в массив байтов
-        using var memoryStream = new MemoryStream();
-        await pdfFile.CopyToAsync(memoryStream);
-        var fileBytes = memoryStream.ToArray();
-
-        // Создаём объект PdfDocument
-        var pdfDocument = new PdfDocument
-        {
-            FileName = pdfFile.FileName,
-            Content = fileBytes,
-            ContentType = pdfFile.ContentType
-        };
-
-        // Сохраняем PDF-файл через `BookService`
-        var pdfId = await _bookService.AddPdfToBookAsync(pdfDocument, bookId);
-
-        if (pdfId == null)
-        {
-            return NotFound(new
-            {
-                Error = "Книга не найдена",
-                Details = $"Книга с идентификатором {bookId} не существует в базе данных."
-            });
-        }
-
-        // Возвращаем успешный результат
-        return Ok(new
-        {
-            Message = "PDF успешно добавлен",
-            PdfId = pdfId
-        });
-    }
-    catch (Exception ex)
-    {
-        // Обработка ошибок
-        return StatusCode(500, new
-        {
-            Error = "Внутренняя ошибка сервера",
-            Details = ex.Message
-        });
-    }
-}
+       
+        
+      
 
         [HttpPut("update-book/{id}")]
         public async Task<IActionResult> UpdateDescription(int id, [FromBody] BookUpdateDiscrptionDto bookDto)

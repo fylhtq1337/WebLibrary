@@ -13,6 +13,46 @@ namespace WebLibrary4.Services
         {
             _bookRepository = bookRepository;
         }
+        
+        public async Task<int?> UploadPdfAsync(int bookId, IFormFile pdfFile)
+        {
+            // 1. Проверяем, что файл передан
+            if (pdfFile == null)
+                throw new ArgumentException("Файл не передан. Пожалуйста, загрузите PDF-файл.");
+
+            // 2. Проверяем MIME-тип файла
+            if (pdfFile.ContentType != "application/pdf")
+                throw new ArgumentException("Некорректный файл. Допускаются только PDF-файлы.");
+
+            // 3. Ограничиваем размер файла (например, 500 MB)
+            const long maxFileSize = 500L * 1024 * 1024; // 500 MB
+            if (pdfFile.Length > maxFileSize)
+                throw new ArgumentException($"Размер файла превышает ограничение в {maxFileSize / (1024 * 1024)} MB.");
+
+            // 4. Проверяем существование книги в базе данных
+            var existingBook = await _bookRepository.GetByIdAsync(bookId);
+            if (existingBook == null)
+                throw new KeyNotFoundException($"Книга с идентификатором {bookId} не найдена.");
+
+            // 5. Читаем содержимое файла
+            using var memoryStream = new MemoryStream();
+            await pdfFile.CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
+
+            // 6. Создаём объект PdfDocument для добавления в базу данных
+            var pdfDocument = new PdfDocument
+            {
+                FileName = pdfFile.FileName,
+                Content = fileBytes,
+                ContentType = pdfFile.ContentType
+            };
+
+            // 7. Сохраняем PDF-файл через репозиторий
+            var pdfId = await _bookRepository.AddPdfAsync(pdfDocument, bookId);
+
+            // 8. Возвращаем ID добавленного PDF (или null, если процесс завершился неудачно)
+            return pdfId;
+        }
 
         public async Task<IEnumerable<Books>> GetAllBooksAsync()
         {

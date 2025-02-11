@@ -134,7 +134,7 @@ namespace WebLibrary4.Repositories
         
         public async Task<int> AddPdfAsync(PdfDocument pdf, int bookId)
         {
-            if (pdf == null) throw new ArgumentNullException(nameof(pdf));
+            if (pdf == null) throw new ArgumentNullException(nameof(pdf), "PDF-документ не может быть null");
 
             using (var connection = new NpgsqlConnection(_connectionString))
             {
