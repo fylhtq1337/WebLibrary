@@ -26,23 +26,23 @@ namespace WebLibrary4.Controllers
         {
             throw new Exception("Тест выброса исключения");
         }
-
-        [HttpGet("{id}/pdf")]
-        public async Task<IActionResult> GetBookPdf(int id)
-        {
-            try
-            {
-                 
-                var pdf = await _bookService.ShowContetnBook(id);
-
-                 
-                return File(pdf.Content, pdf.ContentType, pdf.FileName);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Error = ex.Message });
-            }
-        }
+        //
+        // [HttpGet("{id}/pdf")]
+        // public async Task<IActionResult> GetBookPdf(int id)
+        // {
+        //     try
+        //     {
+        //          
+        //         var pdf = await _bookService.ShowContetnBook(id);
+        //
+        //          
+        //         return File(pdf.Content, pdf.ContentType, pdf.FileName);
+        //     }
+        //     catch (KeyNotFoundException ex)
+        //     {
+        //         return NotFound(new { Error = ex.Message });
+        //     }
+        // }
 
         [HttpGet("search")]
         public async Task<IActionResult> SearchBooks([FromQuery] string? title)
@@ -155,21 +155,21 @@ namespace WebLibrary4.Controllers
 
         }
 
-        [HttpPost("{bookId}/add-pdf")]
-        public async Task<IActionResult> UploadPdf(int bookId, [FromForm] IFormFile pdfFile)
-        {
-
-            // Вызываем сервис для обработки загрузки
-            var pdfId = await _bookService.UploadPdfAsync(bookId, pdfFile);
-
-            // Проверяем результат и возвращаем успешный ответ
-            return Ok(new
-            {
-                Message = "PDF успешно добавлен.",
-                PdfId = pdfId
-            });
-        }
-    
+        // [HttpPost("{bookId}/add-pdf")]
+        // public async Task<IActionResult> UploadPdf(int bookId, [FromForm] IFormFile pdfFile)
+        // {
+        //
+        //     // Вызываем сервис для обработки загрузки
+        //     var pdfId = await _bookService.UploadPdfAsync(bookId, pdfFile);
+        //
+        //     // Проверяем результат и возвращаем успешный ответ
+        //     return Ok(new
+        //     {
+        //         Message = "PDF успешно добавлен.",
+        //         PdfId = pdfId
+        //     });
+        // }
+        //
 
        
         
@@ -180,7 +180,7 @@ namespace WebLibrary4.Controllers
         {
             try
             {
-                // Проверяем входные данные DTO
+                 
                 if (bookDto == null || string.IsNullOrWhiteSpace(bookDto.Description))
                 {
                     return BadRequest(new
@@ -190,12 +190,12 @@ namespace WebLibrary4.Controllers
                     });
                 }
 
-                // Пытаемся обновить описание книги через сервис
+                
                 bool isUpdated = await _bookService.UpdateBookDescriptionAsync(id, bookDto);
 
                 if (!isUpdated)
                 {
-                    // Если книга не найдена
+                   
                     return NotFound(new
                     {
                         Error = "Книга не найдена",
@@ -203,12 +203,12 @@ namespace WebLibrary4.Controllers
                     });
                 }
 
-                // Возвращаем код 204 (No Content) при успешном обновлении
+                
                 return NoContent();
             }
             catch (ArgumentException ex)
             {
-                // Обрабатываем ошибки валидации
+                
                 return BadRequest(new
                 {
                     Error = "Ошибка валидации данных",

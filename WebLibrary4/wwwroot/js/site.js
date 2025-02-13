@@ -160,17 +160,17 @@ $("#search-books-btn").on("click", function () {
     const title = $("#search-title").val().trim();
     
 
-    // Собираем параметры запроса
+    
     const query = new URLSearchParams();
     if (title) query.append("title", title);
      
 
-    // Отправляем запрос к API
+     
     sendRequest("GET", `/api/books/search?${query.toString()}`, null, function (data) {
-        // Рендер списка книг
+         
         renderTable("#books-search-results", data, createBookRow);
     }, function (xhr) {
-        // Если ответ не успешный
+        
         console.error("Ошибка поиска:", xhr.responseText);
         alert(xhr.responseText || "Не удалось выполнить поиск.");
     });
@@ -200,11 +200,11 @@ function createBookRow(book) {
             <td>${book.amount || "Нет информации"}</td>
             <td>
                 <button class="btn btn-warning btn-sm update-book" data-id="${book.id}">Изменить</button>
-                <button class="btn btn-primary btn-sm view-content" data-id="${book.id}">Смотреть</button>
+<!--                <button class="btn btn-primary btn-sm view-content" data-id="${book.id}">Смотреть</button>-->
                 <button class="btn btn-danger btn-sm delete-book" data-id="${book.id}">Удалить</button>
                 <br><br>
                 <input type="file" accept="application/pdf" class="upload-pdf" data-id="${book.id}" style="display: none;" />
-                <button class="btn btn-success btn-sm upload-pdf-btn" data-id="${book.id}">Загрузить PDF</button>
+<!--                <button class="btn btn-success btn-sm upload-pdf-btn" data-id="${book.id}">Загрузить PDF</button>-->
             </td>
         </tr>`;
 }
@@ -299,67 +299,68 @@ $("#submit-book").off("click").on("click", async function (event) {
     }
 });
 
-async function uploadPdf(bookId, pdfFile) {
-    const formData = new FormData();
-    formData.append("pdfFile", pdfFile);
+// async function uploadPdf(bookId, pdfFile) {
+//     const formData = new FormData();
+//     formData.append("pdfFile", pdfFile);
+//
+//     // Используем fetch для отправки данных на сервер
+//     return new Promise((resolve, reject) => {
+//         $.ajax({
+//             url: `/api/books/${bookId}/add-pdf`, // Укажите правильный маршрут API
+//             type: "POST",
+//             contentType: false, // Указываем, что данные отправляются как FormData
+//             processData: false, // Отключаем автоматическую сериализацию
+//             data: formData,
+//             success: resolve,
+//             error: reject
+//         });
+//     });
+// }
 
-    // Используем fetch для отправки данных на сервер
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: `/api/books/${bookId}/add-pdf`, // Укажите правильный маршрут API
-            type: "POST",
-            contentType: false, // Указываем, что данные отправляются как FormData
-            processData: false, // Отключаем автоматическую сериализацию
-            data: formData,
-            success: resolve,
-            error: reject
-        });
-    });
-}
+// function addUploadPdfHandlers() {
+//     // Кнопка "Загрузить PDF" открывает выбор файла
+//     $(".upload-pdf-btn").on("click", function () {
+//         const bookId = $(this).data("id"); // ID книги
+//         $(`.upload-pdf[data-id="${bookId}"]`).trigger("click"); // Триггерим выбор файла
+//     });
 
-function addUploadPdfHandlers() {
-    // Кнопка "Загрузить PDF" открывает выбор файла
-    $(".upload-pdf-btn").on("click", function () {
-        const bookId = $(this).data("id"); // ID книги
-        $(`.upload-pdf[data-id="${bookId}"]`).trigger("click"); // Триггерим выбор файла
-    });
-
-    // Обработка выбора файла
-    $(".upload-pdf").on("change", async function () {
-        const bookId = $(this).data("id"); // ID книги
-        const pdfFile = this.files[0]; // Загруженный файл
-
-        if (!pdfFile) {
-            alert("Выберите файл для загрузки.");
-            return;
-        }
-
-        if (pdfFile.type !== "application/pdf") {
-            alert("Можно загружать только PDF файлы.");
-            return;
-        }
-
-        try {
-            // Вызываем функцию загрузки файла
-            await uploadPdf(bookId, pdfFile);
-            alert("PDF успешно загружен!");
-        } catch (error) {
-            console.error("Ошибка загрузки PDF:", error);
-            alert("Произошла ошибка при загрузке PDF.");
-        }
-    });
-}
+//     // Обработка выбора файла
+//     $(".upload-pdf").on("change", async function () {
+//         const bookId = $(this).data("id"); // ID книги
+//         const pdfFile = this.files[0]; // Загруженный файл
+//
+//         if (!pdfFile) {
+//             alert("Выберите файл для загрузки.");
+//             return;
+//         }
+//
+//         if (pdfFile.type !== "application/pdf") {
+//             alert("Можно загружать только PDF файлы.");
+//             return;
+//         }
+//
+//         try {
+//             // Вызываем функцию загрузки файла
+//             await uploadPdf(bookId, pdfFile);
+//             alert("PDF успешно загружен!");
+//         } catch (error) {
+//             console.error("Ошибка загрузки PDF:", error);
+//             alert("Произошла ошибка при загрузке PDF.");
+//         }
+//     });
+// }
 
 // Повторное подключение обработчиков после рендера таблицы
 function loadBooks() {
     sendRequest("GET", "/api/books/get-all-simple", null, function (data) {
         renderTable("#books-table", data, createBookRow);
         addBookUpdateHandlers();
-        addViewContentHandlers();
+         
         addBookDeleteHandlers();
-        addUploadPdfHandlers(); // Привязываем новый обработчик загрузки PDF
+         
     });
 }
+
 
 // ----------------------------
 // Логика работы с записями выдачи книг
