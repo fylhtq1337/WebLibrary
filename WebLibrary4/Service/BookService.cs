@@ -26,6 +26,17 @@ namespace WebLibrary4.Services
             return books; // Возвращаем найденные книги
         }
         
+        public async Task<int> GetTotalBookCountAsync()
+        {
+            return await _bookRepository.GetTotalBookCountAsync();
+        }
+
+        public async Task<IEnumerable<Books>> GetBooksPaginatedAsync(int page, int pageSize)
+        {
+            return await _bookRepository.GetBooksPaginatedAsync(page, pageSize);
+        }
+
+        
         public async Task<int?> UploadPdfAsync(int bookId, IFormFile pdfFile)
         {
             // 1. Проверяем, что файл передан

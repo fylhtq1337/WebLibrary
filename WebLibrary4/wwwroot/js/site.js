@@ -147,33 +147,73 @@ $("#submit-client").on("click", function () {
 // ----------------------------
 // Логика работы с книгами
 // ----------------------------
-function loadBooks() {
-    sendRequest("GET", "/api/books/get-all-simple", null, function (data) {
-        renderTable("#books-table", data, createBookRow);
-        addBookUpdateHandlers();
-        // addViewContentHandlers();
-        addBookDeleteHandlers();
+function loadBooks(page = 1, pageSize = 10, title = "") {
+    // Формируем URL-запрос с поддержкой фильтрации
+    const url = `/api/books/paginated?page=${page}&pageSize=${pageSize}&title=${encodeURIComponent(title)}`;
+
+    // Отправляем запрос на сервер для получения данных
+    sendRequest("GET", url, null, function (data) {
+        if (data.books && data.books.length > 0) {
+            // Рендерим книги в таблицу
+            renderTable("#books-search-results", data.books, createBookRow);
+
+            // Рендерим кнопки пагинации
+            renderPagination(data.currentPage, data.totalPages);
+        } else {
+            // Очищаем таблицу и добавляем сообщение
+            $("#books-search-results tbody").empty().append("<tr><td colspan='8'>Книги не найдены.</td></tr>");
+            $("#pagination-controls").empty(); // Очищаем пагинацию
+        }
+    }, function (xhr) {
+        console.error("Ошибка при загрузке книг:", xhr.responseText);
+        alert("Не удалось загрузить список книг.");
     });
 }
+function renderPagination(currentPage, totalPages) {
+    const paginationControls = $("#pagination-controls");
+    paginationControls.empty(); // Очищаем старые кнопки
 
+    // Кнопка "Предыдущая"
+    if (currentPage > 1) {
+        paginationControls.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Предыдущая</a>
+            </li>
+        `);
+    }
+
+    // Генерация кнопок для всех страниц
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = i === currentPage ? "active" : "";
+        paginationControls.append(`
+            <li class="page-item ${activeClass}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `);
+    }
+
+    // Кнопка "Следующая"
+    if (currentPage < totalPages) {
+        paginationControls.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Следующая</a>
+            </li>
+        `);
+    }
+}
+
+// Добавляем обработчики событий для пагинации
+$(document).on("click", "#pagination-controls .page-link", function (e) {
+    e.preventDefault(); // Отменяем действие по умолчанию ссылки
+    const page = $(this).data("page"); // Получаем номер страницы
+    loadBooks(page); // Загружаем выбранную страницу
+});
+
+
+// Обработка кнопки поиска
 $("#search-books-btn").on("click", function () {
     const title = $("#search-title").val().trim();
-    
-
-    
-    const query = new URLSearchParams();
-    if (title) query.append("title", title);
-     
-
-     
-    sendRequest("GET", `/api/books/search?${query.toString()}`, null, function (data) {
-         
-        renderTable("#books-search-results", data, createBookRow);
-    }, function (xhr) {
-        
-        console.error("Ошибка поиска:", xhr.responseText);
-        alert(xhr.responseText || "Не удалось выполнить поиск.");
-    });
+    loadBooks(1, 10, title); // Загружаем первую страницу с фильтрацией по названию
 });
 
 // Функция рендера строки книги
@@ -200,23 +240,11 @@ function createBookRow(book) {
             <td>${book.amount || "Нет информации"}</td>
             <td>
                 <button class="btn btn-warning btn-sm update-book" data-id="${book.id}">Изменить</button>
-<!--                <button class="btn btn-primary btn-sm view-content" data-id="${book.id}">Смотреть</button>-->
                 <button class="btn btn-danger btn-sm delete-book" data-id="${book.id}">Удалить</button>
-                <br><br>
-                <input type="file" accept="application/pdf" class="upload-pdf" data-id="${book.id}" style="display: none;" />
-<!--                <button class="btn btn-success btn-sm upload-pdf-btn" data-id="${book.id}">Загрузить PDF</button>-->
             </td>
         </tr>`;
 }
-// function addViewContentHandlers() {
-//     $(".view-content").on("click", function () {
-//         const bookId = $(this).data("id"); // Получаем ID книги
-//
-//         // Перенаправление на страницу просмотра с передачей bookId через query параметр
-//         window.location.href = `/view-pdf.cshtml?bookId=${bookId}`;
-//     });
-// }
-
+ 
 function addBookUpdateHandlers() {
     $(".update-book").on("click", function () {
         const bookId = $(this).data("id");
@@ -299,65 +327,26 @@ $("#submit-book").off("click").on("click", async function (event) {
     }
 });
 
-// async function uploadPdf(bookId, pdfFile) {
-//     const formData = new FormData();
-//     formData.append("pdfFile", pdfFile);
-//
-//     // Используем fetch для отправки данных на сервер
-//     return new Promise((resolve, reject) => {
-//         $.ajax({
-//             url: `/api/books/${bookId}/add-pdf`, // Укажите правильный маршрут API
-//             type: "POST",
-//             contentType: false, // Указываем, что данные отправляются как FormData
-//             processData: false, // Отключаем автоматическую сериализацию
-//             data: formData,
-//             success: resolve,
-//             error: reject
-//         });
-//     });
-// }
-
-// function addUploadPdfHandlers() {
-//     // Кнопка "Загрузить PDF" открывает выбор файла
-//     $(".upload-pdf-btn").on("click", function () {
-//         const bookId = $(this).data("id"); // ID книги
-//         $(`.upload-pdf[data-id="${bookId}"]`).trigger("click"); // Триггерим выбор файла
-//     });
-
-//     // Обработка выбора файла
-//     $(".upload-pdf").on("change", async function () {
-//         const bookId = $(this).data("id"); // ID книги
-//         const pdfFile = this.files[0]; // Загруженный файл
-//
-//         if (!pdfFile) {
-//             alert("Выберите файл для загрузки.");
-//             return;
-//         }
-//
-//         if (pdfFile.type !== "application/pdf") {
-//             alert("Можно загружать только PDF файлы.");
-//             return;
-//         }
-//
-//         try {
-//             // Вызываем функцию загрузки файла
-//             await uploadPdf(bookId, pdfFile);
-//             alert("PDF успешно загружен!");
-//         } catch (error) {
-//             console.error("Ошибка загрузки PDF:", error);
-//             alert("Произошла ошибка при загрузке PDF.");
-//         }
-//     });
-// }
 
 // Повторное подключение обработчиков после рендера таблицы
-function loadBooks() {
-    sendRequest("GET", "/api/books/get-all-simple", null, function (data) {
-        renderTable("#books-table", data, createBookRow);
-        addBookUpdateHandlers();
-         
-        addBookDeleteHandlers();
-         
+function loadBooks(page = 1, pageSize = 10, title = "") {
+    const url = `/api/books/paginated?page=${page}&pageSize=${pageSize}&title=${encodeURIComponent(title)}`;
+
+    sendRequest("GET", url, null, function (data) {
+        if (data.books && data.books.length > 0) {
+            renderTable("#books-table", data.books, createBookRow);
+            renderPagination(data.currentPage, data.totalPages);
+
+            // После загрузки данных нужно переподключить обработчики
+            addBookUpdateHandlers();
+            addBookDeleteHandlers();
+        } else {
+            $("#books-table tbody").empty().append("<tr><td colspan='8'>Книги не найдены.</td></tr>");
+            $("#pagination-controls").empty(); // Очищаем пагинацию
+        }
+    }, function (xhr) {
+        console.error("Ошибка загрузки книг:", xhr.responseText);
+        alert("Не удалось загрузить список книг.");
     });
 }
 

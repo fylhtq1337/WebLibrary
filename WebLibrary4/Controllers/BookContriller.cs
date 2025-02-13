@@ -56,6 +56,40 @@ namespace WebLibrary4.Controllers
 
             return Ok(books);
         }
+        
+        [HttpGet("paginated")]
+        public async Task<IActionResult> GetPaginatedBooks([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Номер страницы и размер страницы должны быть больше 0.");
+            }
+
+            // Получение общего количества книг
+            var totalBooks = await _bookService.GetTotalBookCountAsync();
+
+            // Расчет общего количества страниц
+            var totalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
+
+            if (page > totalPages)
+            {
+                return BadRequest("Указанная страница выходит за пределы допустимого диапазона.");
+            }
+
+            // Получение книг для текущей страницы
+            var books = await _bookService.GetBooksPaginatedAsync(page, pageSize);
+
+            // Формирование результата
+            var result = new
+            {
+                Books = _mapper.Map<IEnumerable<BookShortDto>>(books), // Преобразование сущностей в DTO
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalBooks = totalBooks
+            };
+
+            return Ok(result);
+        }
 
 
         [HttpGet("get-all-simple")]

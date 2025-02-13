@@ -68,7 +68,9 @@
                 <tbody></tbody>
             </table>
         </div>
-
+         
+        
+        
         <div id="books-tab" class="tab-pane fade">
             <h2>Книги</h2>
             <div id="search-books">
@@ -93,6 +95,9 @@
                 <tbody>
                 <!-- Данные будут рендериться динамически -->
                 </tbody>
+                
+
+
             </table>
             <button class="btn btn-primary" id="load-books">Открыть список книг</button>
             <button class="btn btn-success" id="add-book-btn" style="margin-left: 10px;">Добавить книгу</button>
@@ -131,7 +136,7 @@
                     <button class="btn btn-success mt-3" id="submit-book">Добавить книгу</button>
                 </form>
             </div>
-             <table class="table" id="books-table">
+            <table class="table" id="books-table">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -146,6 +151,12 @@
                 </thead>
                 <tbody></tbody>
             </table>
+
+            <nav>
+                <ul class="pagination" id="pagination-controls">
+                    <!-- Пусто, пока кнопки пагинации не будут добавлены через JavaScript -->
+                </ul>
+            </nav>
         </div>
 
         <div id="borrow-records-tab" class="tab-pane fade">

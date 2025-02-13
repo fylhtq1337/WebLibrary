@@ -15,6 +15,63 @@ namespace WebLibrary4.Repositories
             _connectionString = connectionString;
         }
         
+        public async Task<int> GetTotalBookCountAsync()
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var query = "SELECT COUNT(*) FROM Books"; // SQL-запрос для подсчета количества записей
+
+                using (var command = new NpgsqlCommand(query, connection))
+                {
+                    var result = await command.ExecuteScalarAsync(); // Метод ExecuteScalarAsync возвращает первую колонку первой строки (количество записей)
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+        public async Task<IEnumerable<Books>> GetBooksPaginatedAsync(int page, int pageSize)
+        {
+            var books = new List<Books>();
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                // SQL-запрос с LIMIT и OFFSET
+                var query = @"SELECT * FROM Books
+                      ORDER BY Id -- Сортировка для предсказуемости
+                      LIMIT @PageSize OFFSET @Offset";
+
+                using (var command = new NpgsqlCommand(query, connection))
+                {
+                    // Передаем параметры
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+                    command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            books.Add(new Books
+                            {
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Author = reader.GetString(3),
+                                Genre = reader.GetString(4),
+                                Year = reader.GetInt32(5),
+                                Amount = reader.GetInt32(6)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return books;
+        }
+        
+        
         public async Task<IEnumerable<Books>> SearchBooksAsync(string? title)
         {
             var books = new List<Books>();

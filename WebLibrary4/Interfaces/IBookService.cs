@@ -7,6 +7,8 @@ public interface IBookService
 {
     Task<int?> UploadPdfAsync(int bookId, IFormFile pdfFile);
     Task<IEnumerable<Books>> SearchBooksAsync(string? title);
+    Task<int> GetTotalBookCountAsync(); // Ожидаемое количество всех записей книг
+    Task<IEnumerable<Books>> GetBooksPaginatedAsync(int page, int pageSize); // Пагинированный список книг
 
     Task<IEnumerable<Books>> GetAllBooksAsync();
     Task<Books?> GetBookByIdAsync(int id);
