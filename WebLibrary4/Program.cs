@@ -61,24 +61,9 @@ void ConfigureMiddleware(WebApplication app)
         app.UseHsts();
     }
 
-    // Кастомная обработка исключений
-    app.UseExceptionHandler(errorApp =>
-    {
-        errorApp.Run(async context =>
-        {
-            context.Response.StatusCode = 500; // Внутренняя ошибка сервера
-            context.Response.ContentType = "application/json";
+     
+    app.UseMiddleware<ErrorHandlingMiddleware>();
 
-            var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
-            var exception = errorFeature?.Error;
-
-            // Используем стандартный логгер для записи логов об ошибках
-            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogError(exception, "Произошла необработанная ошибка");
-
-            await context.Response.WriteAsync("Произошла ошибка.");
-        });
-    });
 
     app.UseHttpsRedirection();
     app.UseRouting();

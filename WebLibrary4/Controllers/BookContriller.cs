@@ -21,15 +21,21 @@ namespace WebLibrary4.Controllers
             _mapper = mapper;
         }
         
+        [HttpGet("test-exception")]
+        public IActionResult TestException()
+        {
+            throw new Exception("Тест выброса исключения");
+        }
+
         [HttpGet("{id}/pdf")]
         public async Task<IActionResult> GetBookPdf(int id)
         {
             try
             {
-                // Вызов метода сервиса
+                 
                 var pdf = await _bookService.ShowContetnBook(id);
 
-                // Возвращаем PDF-файл клиенту
+                 
                 return File(pdf.Content, pdf.ContentType, pdf.FileName);
             }
             catch (KeyNotFoundException ex)
@@ -37,11 +43,11 @@ namespace WebLibrary4.Controllers
                 return NotFound(new { Error = ex.Message });
             }
         }
-        
+
         [HttpGet("search")]
-        public async Task<IActionResult> SearchBooks([FromQuery] string? title )
+        public async Task<IActionResult> SearchBooks([FromQuery] string? title)
         {
-            var books = await  _bookService.SearchBooksAsync(title);
+            var books = await _bookService.SearchBooksAsync(title);
 
             if (!books.Any())
             {
@@ -50,66 +56,39 @@ namespace WebLibrary4.Controllers
 
             return Ok(books);
         }
-        
-        
+
+
         [HttpGet("get-all-simple")]
         public async Task<IActionResult> GetAllSimplified()
         {
-            Console.WriteLine("Метод вызван!");
-            try
-            {
-                // Получаем полную информацию о книгах из `IBookService`
+            
+             
+                 
                 var books = await _bookService.GetAllBooksAsync();
 
-                // Маппинг через AutoMapper
+                
                 var bookDtos = _mapper.Map<List<BookShortDto>>(books);
 
                 return Ok(bookDtos);
-            }
-            catch (Exception ex)
-            {
-                // Обработка исключений
-                return StatusCode(500, new
-                {
-                    Error = "Ошибка сервера",
-                    Details = ex.Message
-                });
-            }
+            
+             
         }
 
         [HttpGet("get-all-book")]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                // Ожидаемое выполнение метода:
+            
+                 
                 var books = await _bookService.GetAllBooksAsync();
                 return Ok(books);
-            }
-            catch (ArgumentNullException ex) // Например, если сервис возвращает Null
-            {
-                return BadRequest(new
-                {
-                    Error = "Некорректные параметры запроса",
-                    Details = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                // Ловим остальные ошибки
-                return StatusCode(500, new
-                {
-                    Error = "Произошла внутренняя ошибка сервера",
-                    Details = ex.Message
-                });
-            }
+            
+             
         }
 
         [HttpGet("get-book/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
+             
                 if (id <= 0) // Проверяем некорректный id
                 {
                     return BadRequest(new
@@ -131,123 +110,67 @@ namespace WebLibrary4.Controllers
                 }
 
                 return Ok(book);
-            }
-            catch (ArgumentException ex) // Конкретное исключение (если, например, логика выбрасывает `ArgumentException`)
-            {
-                return BadRequest(new
-                {
-                    Error = "Ошибка запроса",
-                    Details = ex.Message
-                });
-            }
-            catch (Exception ex) // Все остальные необработанные ошибки
-            {
-                return StatusCode(500, new
-                {
-                    Error = "Внутренняя ошибка сервера",
-                    Details = ex.Message // В рабочем окружении можно убрать это поле
-                });
-            }
+            
+            
         }
 
         [HttpPost("create-book")]
         public async Task<IActionResult> Create([FromBody] BookRequestDto bookDto)
         {
-            try
-            {
-                
-                // Логирование тела запроса
-                Console.WriteLine("Пришёл запрос:");
-                Console.WriteLine($"Title: {bookDto.Title}, Author: {bookDto.Author}");
-                // Проверяем входные данные
-                if (bookDto == null)
-                {
-                    return BadRequest(new
-                    {
-                        Error = "Книга не была передана",
-                        Details = "Запрос не содержит данных для создания книги."
-                    });
-                }
 
-                if (string.IsNullOrWhiteSpace(bookDto.Title) || string.IsNullOrWhiteSpace(bookDto.Author) 
-                    || string.IsNullOrWhiteSpace(bookDto.Description) ||string.IsNullOrWhiteSpace(bookDto.Genre)
-                     )
-                {
-                    return BadRequest(new
-                    {
-                        Error = "Некорректные данные",
-                        Details = "Название и имя автора не могут быть пустыми."
-                    });
-                }
 
-                // Маппинг BookRequestDto -> Books
-                var book = _mapper.Map<Books>(bookDto);
-                book.Id = await _bookService.AddBookAsync(book);
-
-                // Маппинг результата Books -> BookResponseDto
-                var bookResponse = _mapper.Map<BookResponseDto>(book); 
-                
-                return CreatedAtAction(nameof(GetById), new { id = book.Id }, bookResponse);
-            }
-            catch (ArgumentException ex) // Если AddBookAsync выбрасывает ArgumentException
+            // Логирование тела запроса
+            Console.WriteLine("Пришёл запрос:");
+            Console.WriteLine($"Title: {bookDto.Title}, Author: {bookDto.Author}");
+            // Проверяем входные данные
+            if (bookDto == null)
             {
                 return BadRequest(new
                 {
-                    Error = "Ошибка валидации данных",
-                    Details = ex.Message
+                    Error = "Книга не была передана",
+                    Details = "Запрос не содержит данных для создания книги."
                 });
             }
-            catch (Exception ex) // Все остальные необработанные ошибки
+
+            if (string.IsNullOrWhiteSpace(bookDto.Title) || string.IsNullOrWhiteSpace(bookDto.Author)
+                                                         || string.IsNullOrWhiteSpace(bookDto.Description) ||
+                                                         string.IsNullOrWhiteSpace(bookDto.Genre)
+               )
             {
-                return StatusCode(500, new
+                return BadRequest(new
                 {
-                    Error = "Внутренняя ошибка сервера",
-                    Details = ex.Message // Уберите в production для скрытия технических деталей
+                    Error = "Некорректные данные",
+                    Details = "Название и имя автора не могут быть пустыми."
                 });
             }
+
+            // Маппинг BookRequestDto -> Books
+            var book = _mapper.Map<Books>(bookDto);
+            book.Id = await _bookService.AddBookAsync(book);
+
+            // Маппинг результата Books -> BookResponseDto
+            var bookResponse = _mapper.Map<BookResponseDto>(book);
+
+            return CreatedAtAction(nameof(GetById), new { id = book.Id }, bookResponse);
+
         }
-        
+
         [HttpPost("{bookId}/add-pdf")]
         public async Task<IActionResult> UploadPdf(int bookId, [FromForm] IFormFile pdfFile)
         {
-            try
-            {
-                // Вызываем сервис для обработки загрузки
-                var pdfId = await _bookService.UploadPdfAsync(bookId, pdfFile);
 
-                // Проверяем результат и возвращаем успешный ответ
-                return Ok(new
-                {
-                    Message = "PDF успешно добавлен.",
-                    PdfId = pdfId
-                });
-            }
-            catch (ArgumentException ex)
+            // Вызываем сервис для обработки загрузки
+            var pdfId = await _bookService.UploadPdfAsync(bookId, pdfFile);
+
+            // Проверяем результат и возвращаем успешный ответ
+            return Ok(new
             {
-                // Ошибки валидации и проверки файла
-                return BadRequest(new
-                {
-                    Error = ex.Message
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                // Ошибка: книга не найдена
-                return NotFound(new
-                {
-                    Error = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                // Общая обработка ошибок
-                return StatusCode(500, new
-                {
-                    Error = "Внутренняя ошибка сервера.",
-                    Details = ex.Message
-                });
-            }
+                Message = "PDF успешно добавлен.",
+                PdfId = pdfId
+            });
         }
+    
+
        
         
       
@@ -292,22 +215,13 @@ namespace WebLibrary4.Controllers
                     Details = ex.Message
                 });
             }
-            catch (Exception ex)
-            {
-                // Обрабатываем необработанные ошибки
-                return StatusCode(500, new
-                {
-                    Error = "Внутренняя ошибка сервера",
-                    Details = ex.Message // Уберите это поле в production
-                });
-            }
+            
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
+             
                 // Пытаемся удалить книгу
                 var isDeleted = await _bookService.DeleteBookAsync(id);
 
@@ -323,23 +237,8 @@ namespace WebLibrary4.Controllers
 
                 // Если книга успешно удалена
                 return NoContent(); // Возвращаем 204
-            }
-            catch (ArgumentException ex) // Например, ошибки в бизнес-логике
-            {
-                return BadRequest(new
-                {
-                    Error = "Некорректный запрос",
-                    Details = ex.Message
-                });
-            }
-            catch (Exception ex) // Необработанные ошибки
-            {
-                return StatusCode(500, new
-                {
-                    Error = "Внутренняя ошибка сервера",
-                    Details = ex.Message // Уберите `Details` в production
-                });
-            }
+            
+            
         }
     }
 }
