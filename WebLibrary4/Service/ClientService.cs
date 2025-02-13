@@ -16,6 +16,20 @@ namespace WebLibrary4.Services
             _clientRepository = clientRepository;
         }
         
+        public async Task<IEnumerable<Clients>> GetPaginatedClientsAsync(int page, int pageSize)
+        {
+            // Вычисляем пропуски для пагинации
+            var skip = (page - 1) * pageSize;
+
+            // Получаем клиентов с учетом пропусков и лимита
+            return await _clientRepository.GetPaginatedClientsAsync(skip, pageSize);
+        }
+
+        public async Task<int> GetTotalClientsCountAsync()
+        {
+            return await _clientRepository.GetTotalClientsCountAsync();
+        }
+        
         public async Task<IEnumerable<Clients>> SearchByNameAsync(string name)
         {
             // Проверка на пустое или null имя

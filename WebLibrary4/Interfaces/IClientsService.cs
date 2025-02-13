@@ -6,6 +6,8 @@ namespace WebLibrary4.Interfaces
     public interface IClientService
     {
         Task<IEnumerable<Clients>> SearchByNameAsync(string name);
+        Task<IEnumerable<Clients>> GetPaginatedClientsAsync(int page, int pageSize);
+        Task<int> GetTotalClientsCountAsync();
         Task<IEnumerable<Clients>> GetAllClientsAsync();   // Получить всех клиентов
         Task<Clients?> GetClientByIdAsync(int id);         // Получить клиента по ID
         Task<bool> CreateClientAsync(ClientCreateDto client);         // Добавить нового клиента

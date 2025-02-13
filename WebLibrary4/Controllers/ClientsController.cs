@@ -16,6 +16,40 @@ namespace WebLibrary4.Controllers
             _clientService = clientService;
         }
         
+        [HttpGet("paginated")]
+        public async Task<IActionResult> GetPaginatedClients([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Номер страницы и размер страницы должны быть больше нуля.");
+            }
+
+            try
+            {
+                var clients = await _clientService.GetPaginatedClientsAsync(page, pageSize);
+                if (!clients.Any())
+                {
+                    return NotFound("Клиентов не найдено.");
+                }
+
+                // Формируем результат с учетом общих страниц
+                var totalClients = await _clientService.GetTotalClientsCountAsync();
+                var totalPages = (int)Math.Ceiling((double)totalClients / pageSize);
+
+                return Ok(new
+                {
+                    Clients = clients,
+                    CurrentPage = page,
+                    TotalPages = totalPages,
+                    TotalClients = totalClients
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ошибка сервера: {ex.Message}");
+            }
+        }
+        
         [HttpGet("search")]
         public async Task<IActionResult> SearchByName([FromQuery] string name)
         {

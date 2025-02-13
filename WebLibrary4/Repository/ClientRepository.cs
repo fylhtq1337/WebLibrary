@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+ 
 using Npgsql;
 using WebLibrary4.Models.Entities;
 using WebLibrary4.Interfaces; // Интерфейс для клиента
@@ -14,6 +15,48 @@ namespace WebLibrary4.Repositories
         public ClientRepository(string connectionString)
         {
             _connectionString = connectionString;
+        }
+        
+        public async Task<IEnumerable<Clients>> GetPaginatedClientsAsync(int skip, int take)
+        {
+            var clients = new List<Clients>();
+
+            using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"SELECT * FROM Clients ORDER BY Id OFFSET @Skip LIMIT @Take";
+
+            using var command = new Npgsql.NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("@Skip", skip);
+            command.Parameters.AddWithValue("@Take", take);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var client = new Clients
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    Username = reader.GetString(reader.GetOrdinal("Username")),
+                    Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString(reader.GetOrdinal("Email")),
+                    Role = reader.IsDBNull(reader.GetOrdinal("Role")) ? null : reader.GetString(reader.GetOrdinal("Role"))
+                };
+
+                clients.Add(client);
+            }
+
+            return clients;
+        }
+        public async Task<int> GetTotalClientsCountAsync()
+        {
+            using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"SELECT COUNT(*) FROM Clients";
+
+            using var command = new Npgsql.NpgsqlCommand(query, connection);
+
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
         
         public async Task<IEnumerable<Clients>> SearchByNameAsync(string name)
