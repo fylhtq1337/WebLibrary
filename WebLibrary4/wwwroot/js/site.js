@@ -438,6 +438,19 @@ function createSearchResultRow(record) {
 }
 
 
+function filterOptions(searchInputId, selectId) {
+    $(searchInputId).on("input", function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $(selectId + " option").each(function() {
+            const optionText = $(this).text().toLowerCase();
+            $(this).toggle(optionText.includes(searchTerm));
+        });
+    });
+}
+
+// Привязка обработчиков событий к полям ввода
+filterOptions("#client-search", "#borrow-client");
+filterOptions("#book-search", "#borrow-book");
 
 function loadClientsForBorrow() {
     sendRequest("GET", "/api/clients/get-all", null, function (data) {
