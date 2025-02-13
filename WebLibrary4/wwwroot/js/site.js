@@ -53,11 +53,19 @@ function validateEmail(email) {
 // ----------------------------
 function loadClients() {
     sendRequest("GET", "/api/clients/get-all", null, function (data) {
-        renderTable("#clients-table", data, createClientRow);
+        if (Array.isArray(data) && data.length > 0) {
+            renderTable("#clients-table", data, createClientRow);
+        } else {
+            // Очищаем таблицу и выводим сообщение, если данные отсутствуют.
+            const tableBody = $("#clients-table").find("tbody");
+            tableBody.empty();
+            tableBody.append("<tr><td colspan='5'>Клиенты не найдены</td></tr>");
+        }
         $("#clients-search-results").hide();
-        addClientDeleteHandlers();
+        addClientDeleteHandlers(); // Вызываем после рендеринга таблицы
     });
 }
+
 
 function createClientRow(client) {
     return `
@@ -109,7 +117,7 @@ function createClientSearchRow(client) {
 }
 
 function addClientDeleteHandlers() {
-    $(".delete-client").on("click", function () {
+    $("#clients-table").on("click", ".delete-client", function () {
         const clientId = $(this).data("id");
         sendRequest("DELETE", `/api/clients/delete/${clientId}`, null, function () {
             alert("Клиент удален!");
@@ -143,7 +151,7 @@ function loadBooks() {
     sendRequest("GET", "/api/books/get-all-simple", null, function (data) {
         renderTable("#books-table", data, createBookRow);
         addBookUpdateHandlers();
-        addViewContentHandlers();
+        // addViewContentHandlers();
         addBookDeleteHandlers();
     });
 }
@@ -169,16 +177,16 @@ $("#search-books-btn").on("click", function () {
 });
 
 // Функция рендера строки книги
-function createBookRow(book) {
-    return `
-        <tr>
-            <td>${book.id}</td>
-            <td>${book.title}</td>
-            <td>${book.author}</td>
-            <td>${book.genre}</td>
-            <td>${book.year}</td>
-        </tr>`;
-}
+// function createBookRow(book) {
+//     return `
+//         <tr>
+//             <td>${book.id}</td>
+//             <td>${book.title}</td>
+//             <td>${book.author}</td>
+//             <td>${book.genre}</td>
+//             <td>${book.year}</td>
+//         </tr>`;
+// }
 
 function createBookRow(book) {
     return `
@@ -200,14 +208,14 @@ function createBookRow(book) {
             </td>
         </tr>`;
 }
-function addViewContentHandlers() {
-    $(".view-content").on("click", function () {
-        const bookId = $(this).data("id"); // Получаем ID книги
-
-        // Перенаправление на страницу просмотра с передачей bookId через query параметр
-        window.location.href = `/view-pdf.cshtml?bookId=${bookId}`;
-    });
-}
+// function addViewContentHandlers() {
+//     $(".view-content").on("click", function () {
+//         const bookId = $(this).data("id"); // Получаем ID книги
+//
+//         // Перенаправление на страницу просмотра с передачей bookId через query параметр
+//         window.location.href = `/view-pdf.cshtml?bookId=${bookId}`;
+//     });
+// }
 
 function addBookUpdateHandlers() {
     $(".update-book").on("click", function () {
@@ -380,7 +388,7 @@ function searchRecordsByBookTitle() {
         }
 
         // Рендерим результаты поиска в таблицу
-        renderTable("#search-results-table", data, createSearchResultRow);
+        renderTable("#search-results-table", data, createBorrowRecordRow);
     }, function (xhr) {
         console.error("Ошибка поиска записей по книге:", xhr.responseText);
         alert("Произошла ошибка при выполнении поиска по книге.");
@@ -388,7 +396,7 @@ function searchRecordsByBookTitle() {
 }
 
 function searchRecordsByClientName() {
-    const clientName = $("#search-client-name").val().trim();
+    const clientName = $("#search-client-names").val().trim();
 
     if (!clientName) {
         alert("Введите имя клиента для поиска.");
@@ -403,7 +411,7 @@ function searchRecordsByClientName() {
         }
 
         // Рендерим результаты поиска в таблицу
-        renderTable("#search-results-table", data, createSearchResultRow);
+        renderTable("#search-results-table", data, createBorrowRecordRow);
     }, function (xhr) {
         console.error("Ошибка поиска записей по клиенту:", xhr.responseText);
         alert("Произошла ошибка при выполнении поиска по клиенту.");
