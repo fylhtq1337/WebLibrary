@@ -52,21 +52,21 @@ function validateEmail(email) {
 // Логика работы с клиентами
 // ----------------------------
 $(document).ready(function () {
-    // Обработчик кнопки "Список клиентов"
+     
     $("#load-clients").on("click", function () {
         loadClients();
     });
 
-    // Привязка кнопок пагинации
+  
     $(document).on("click", "#pagination-controls-clients .page-link", function (e) {
         e.preventDefault();
         const page = $(this).data("page");
-        loadClients(page); // Загружаем выбранную страницу
+        loadClients(page);  
     });
 });
 
 function loadClients(page = 1, pageSize = 10) {
-    // Отправляем запрос с указанием страницы и размера страницы
+     
     sendRequest("GET", `/api/clients/paginated?page=${page}&pageSize=${pageSize}`, null, function (data) {
         console.log("Ответ от API /api/clients/paginated", data);
 
@@ -90,13 +90,13 @@ function loadClients(page = 1, pageSize = 10) {
 }
 function renderPaginationClients(currentPage, totalPages) {
     const paginationControls = $("#pagination-controls-clients");
-    paginationControls.empty(); // Очистить предыдущие кнопки
+    paginationControls.empty();  
 
     if (totalPages <= 1) {
-        return; // Если всего одна страница, не создаем пагинацию
+        return; 
     }
 
-    // Кнопка "Предыдущая"
+     
     if (currentPage > 1) {
         paginationControls.append(`
             <li class="page-item">
@@ -105,7 +105,7 @@ function renderPaginationClients(currentPage, totalPages) {
         `);
     }
 
-    // Генерация кнопок для всех страниц
+     
     for (let i = 1; i <= totalPages; i++) {
         const activeClass = (i === currentPage) ? "active" : "";
         paginationControls.append(`
@@ -115,7 +115,7 @@ function renderPaginationClients(currentPage, totalPages) {
         `);
     }
 
-    // Кнопка "Следующая"
+    
     if (currentPage < totalPages) {
         paginationControls.append(`
             <li class="page-item">
@@ -127,11 +127,11 @@ function renderPaginationClients(currentPage, totalPages) {
 
  
 
-// Обработчик кликов на кнопках пагинации
+ 
 $(document).on("click", "#pagination-controls .page-link", function (e) {
     e.preventDefault();
     const page = $(this).data("page");
-    loadClients(page); // Загружаем выбранную страницу
+    loadClients(page);  
 });
 
 
@@ -283,21 +283,21 @@ $("#submit-client").on("click", function () {
 // Логика работы с книгами
 // ----------------------------
 function loadBooks(page = 1, pageSize = 10, title = "") {
-    // Формируем URL-запрос с поддержкой фильтрации
+     
     const url = `/api/books/paginated?page=${page}&pageSize=${pageSize}&title=${encodeURIComponent(title)}`;
 
-    // Отправляем запрос на сервер для получения данных
+     
     sendRequest("GET", url, null, function (data) {
         if (data.books && data.books.length > 0) {
-            // Рендерим книги в таблицу
+            
             renderTable("#books-search-results", data.books, createBookRow);
 
-            // Рендерим кнопки пагинации
+            
             renderPagination(data.currentPage, data.totalPages);
         } else {
-            // Очищаем таблицу и добавляем сообщение
+             
             $("#books-search-results tbody").empty().append("<tr><td colspan='8'>Книги не найдены.</td></tr>");
-            $("#pagination-controls").empty(); // Очищаем пагинацию
+            $("#pagination-controls").empty();  
         }
     }, function (xhr) {
         console.error("Ошибка при загрузке книг:", xhr.responseText);
@@ -306,9 +306,9 @@ function loadBooks(page = 1, pageSize = 10, title = "") {
 }
 function renderPagination(currentPage, totalPages) {
     const paginationControls = $("#pagination-controls");
-    paginationControls.empty(); // Очищаем старые кнопки
+    paginationControls.empty();  
 
-    // Кнопка "Предыдущая"
+    
     if (currentPage > 1) {
         paginationControls.append(`
             <li class="page-item">
@@ -317,7 +317,7 @@ function renderPagination(currentPage, totalPages) {
         `);
     }
 
-    // Генерация кнопок для всех страниц
+    
     for (let i = 1; i <= totalPages; i++) {
         const activeClass = i === currentPage ? "active" : "";
         paginationControls.append(`
@@ -327,7 +327,7 @@ function renderPagination(currentPage, totalPages) {
         `);
     }
 
-    // Кнопка "Следующая"
+    
     if (currentPage < totalPages) {
         paginationControls.append(`
             <li class="page-item">
@@ -337,22 +337,21 @@ function renderPagination(currentPage, totalPages) {
     }
 }
 
-// Добавляем обработчики событий для пагинации
+ 
 $(document).on("click", "#pagination-controls .page-link", function (e) {
-    e.preventDefault(); // Отменяем действие по умолчанию ссылки
-    const page = $(this).data("page"); // Получаем номер страницы
-    loadBooks(page); // Загружаем выбранную страницу
+    e.preventDefault();  
+    const page = $(this).data("page");  
+    loadBooks(page);  
 });
 
 
-// Обработка кнопки поиска
-// Обработка кнопки поиска (без пагинации)
+ 
 $("#search-books-btn").on("click", function () {
     const title = $("#search-title").val().trim();
-    searchBooks(title); // вызываем функцию поиска без параметров страницы
+    searchBooks(title);  
 });
 
-// Функция для поиска книг по title (обращается к /api/books/search)
+ 
 function searchBooks(title) {
     const url = `/api/books/search?title=${encodeURIComponent(title)}`;
 
@@ -369,18 +368,7 @@ function searchBooks(title) {
         alert("Не удалось найти книги.");
     });
 }
-// Функция рендера строки книги
-// function createBookRow(book) {
-//     return `
-//         <tr>
-//             <td>${book.id}</td>
-//             <td>${book.title}</td>
-//             <td>${book.author}</td>
-//             <td>${book.genre}</td>
-//             <td>${book.year}</td>
-//         </tr>`;
-// }
-
+ 
 function createBookRow(book) {
     return `
         <tr>
@@ -415,24 +403,24 @@ function addBookUpdateHandlers() {
 }
 function addBookDeleteHandlers() {
     $(".delete-book").on("click", function () {
-        const bookId = $(this).data("id"); // Получаем ID книги
+        const bookId = $(this).data("id");  
 
-        // Подтверждение удаления
+         
         const confirmDelete = confirm("Вы уверены, что хотите удалить эту книгу?");
         if (!confirmDelete) {
-            return; // Пользователь отменил удаление
+            return;  
         }
 
-        // Отправляем запрос на сервер
+        
         sendRequest("DELETE", `/api/books/delete/${bookId}`, null, function () {
             alert("Книга успешно удалена!");
-            loadBooks(); // Перезагружаем список книг после удаления
+            loadBooks();  
         });
     });
 }
 $("#submit-book").off("click").on("click", async function (event) {
  
-     event.preventDefault(); // Останавливаем отправку формы
+     event.preventDefault();  
 
     const title = $("#book-title").val().trim();
     const author = $("#book-author").val().trim();
@@ -441,7 +429,7 @@ $("#submit-book").off("click").on("click", async function (event) {
     const year = $("#book-year").val().trim();
     const amount = $("#book-amount").val().trim();
 
-    // Валидация всех полей
+     
     if (!validateField(title, "Название книги не может быть пустым!") ||
         !validateField(author, "Автор книги не может быть пустым!") ||
         !validateField(genre, "Жанр книги не может быть пустым!") ||
@@ -451,7 +439,7 @@ $("#submit-book").off("click").on("click", async function (event) {
         return;
     }
 
-    // Передача всех полей, включая amount (и преобразование типов, где нужно)
+     
     const bookData = {
         title: title,
         author: author,
@@ -461,19 +449,19 @@ $("#submit-book").off("click").on("click", async function (event) {
         amount: parseInt(amount, 10),
     };
 
-    // Отправка данных на сервер (POST запрос)
+    
     try {
-        // Создаём книгу
+         
         const response = await new Promise((resolve, reject) => {
             sendRequest("POST", "/api/books/create-book", bookData, resolve, reject);
         });
 
-        // Если книга успешно создана
+         
         alert("Книга успешно добавлена!");
 
-        // Обновление интерфейса
-        $("#add-book-form").hide(); // Закрываем форму добавления книги
-        // loadBooks(); // Обновляем список книг
+         
+        $("#add-book-form").hide(); 
+          loadBooks();  
     } catch (error) {
         console.error("Ошибка при добавлении книги:", error);
         alert("Ошибка при добавлении книги. Проверьте данные!");
@@ -481,7 +469,7 @@ $("#submit-book").off("click").on("click", async function (event) {
 });
 
 
-// Повторное подключение обработчиков после рендера таблицы
+ 
 function loadBooks(page = 1, pageSize = 10, title = "") {
     const url = `/api/books/paginated?page=${page}&pageSize=${pageSize}&title=${encodeURIComponent(title)}`;
 
@@ -490,12 +478,12 @@ function loadBooks(page = 1, pageSize = 10, title = "") {
             renderTable("#books-table", data.books, createBookRow);
             renderPagination(data.currentPage, data.totalPages);
 
-            // После загрузки данных нужно переподключить обработчики
+             
             addBookUpdateHandlers();
             addBookDeleteHandlers();
         } else {
             $("#books-table tbody").empty().append("<tr><td colspan='8'>Книги не найдены.</td></tr>");
-            $("#pagination-controls").empty(); // Очищаем пагинацию
+            $("#pagination-controls").empty();  
         }
     }, function (xhr) {
         console.error("Ошибка загрузки книг:", xhr.responseText);
@@ -523,14 +511,14 @@ function searchRecordsByBookTitle() {
         return;
     }
 
-    // Выполняем AJAX-запрос для поиска по книге
+    
     sendRequest("GET", `/api/borrow-records/search-by-book?bookTitle=${bookTitle}`, null, function (data) {
         if (!data.length) {
             alert("Записи не найдены по указанной книге.");
             return;
         }
 
-        // Рендерим результаты поиска в таблицу
+        
         renderTable("#search-results-table", data, createBorrowRecordRow);
     }, function (xhr) {
         console.error("Ошибка поиска записей по книге:", xhr.responseText);
@@ -546,14 +534,14 @@ function searchRecordsByClientName() {
         return;
     }
 
-    // Выполняем AJAX-запрос для поиска по клиенту
+     
     sendRequest("GET", `/api/borrow-records/search-by-client?clientName=${clientName}`, null, function (data) {
         if (!data.length) {
             alert("Записи не найдены по указанному клиенту.");
             return;
         }
 
-        // Рендерим результаты поиска в таблицу
+        
         renderTable("#search-results-table", data, createBorrowRecordRow);
     }, function (xhr) {
         console.error("Ошибка поиска записей по клиенту:", xhr.responseText);
@@ -617,9 +605,9 @@ function loadBooksForBorrow() {
     });
 }
 $("#add-borrow-record-btn").on("click", function () {
-    $("#add-borrow-record-form").toggle(); // Показываем или скрываем форму
-    loadClientsForBorrow(); // Загрузка списка клиентов
-    loadBooksForBorrow();   // Загрузка списка книг
+    $("#add-borrow-record-form").toggle();  
+    loadClientsForBorrow();  
+    loadBooksForBorrow();    
 });
 
 function createBorrowRecordRow(record) {
@@ -637,13 +625,13 @@ function createBorrowRecordRow(record) {
         </tr>`;
 }
 $("#submit-borrow-record").on("click", function (event) {
-    event.preventDefault(); // Предотвращаем перезагрузку страницы
+    event.preventDefault();  
 
     const clientId = $("#borrow-client").val();
     const bookId = $("#borrow-book").val();
     const borrowDate = $("#borrow-date").val();
 
-    // Валидация полей
+   
     if (!validateField(clientId, "Выберите клиента!") ||
         !validateField(bookId, "Выберите книгу!") ||
         !validateField(borrowDate, "Укажите дату выдачи!")) {
@@ -658,14 +646,14 @@ $("#submit-borrow-record").on("click", function (event) {
 
     sendRequest("POST", "/api/borrow-records/create", borrowData, function () {
         alert("Запись выдачи успешно создана!");
-        $("#add-borrow-record-form").hide(); // Скрываем форму
-        loadBorrowRecords(); // Перезагружаем список записей выдачи
+        $("#add-borrow-record-form").hide();  
+        loadBorrowRecords();  
     });
 });
 
 function addBorrowRecordHandlers() {
     $(".return-book").on("click", function () {
-        const recordId = $(this).data("id"); // Берем ID записи из кнопки
+        const recordId = $(this).data("id");  
         console.log("Record ID:", recordId);
         if (!recordId) {
             console.error("Не удалось получить ID записи.");
@@ -673,10 +661,10 @@ function addBorrowRecordHandlers() {
             return;
         }
 
-        // Отправить PUT-запрос на сервер для возврата книги
+         
         sendRequest("PUT", `/api/borrow-records/return/${recordId}`, null, function () {
             alert("Книга успешно возвращена!");
-            loadBorrowRecords(); // Перезагружаем список записей
+            loadBorrowRecords();  
         }, function (xhr) {
             console.error("Ошибка при возврате книги:", xhr.responseText);
             alert("Произошла ошибка при возврате книги. Проверьте лог.");
@@ -691,7 +679,7 @@ $("#search-records").on("click", function () {
     const bookTitle = $("#search-book-title").val().trim();
     const clientName = $("#search-client-name").val().trim();
 
-    // Выполняем AJAX-запрос к API для поиска записей
+     
     sendRequest("GET", `/api/borrow-records/search?bookTitle=${bookTitle}&clientName=${clientName}`, null, function (data) {
         renderTable("#borrow-records-table", data, createBorrowRecordRow);
     });
@@ -709,7 +697,7 @@ function addDeleteBorrowRecordHandlers() {
         }
 
         if (confirm("Вы уверены, что хотите удалить эту запись?")) {
-            // Отправляем DELETE-запрос на сервер
+             
             sendRequest(
                 "DELETE",
                 `/api/borrow-records/delete/${recordId}`,
@@ -717,7 +705,7 @@ function addDeleteBorrowRecordHandlers() {
                 function () {
                     alert("Запись успешно удалена!");
 
-                    // Заново загружаем таблицу после успешного удаления
+                    
                     loadBorrowRecords();
                 },
                 function (xhr) {
@@ -741,12 +729,12 @@ function setupLoadButton(buttonId, loadFunction) {
 $(document).ready(function () {
     const apiBaseUrl = "/api";
 
-    // Настройка кнопок загрузки
+
+    setupLoadButton("#load-borrow-records", loadBorrowRecords);
     setupLoadButton("#load-clients", loadClients);
     setupLoadButton("#load-books", loadBooks);
-    setupLoadButton("#load-borrow-records", loadBorrowRecords);
 
-    // Переключение отображения форм
+   
     $("#add-client-btn").on("click", function () {
         $("#add-client-form").toggle();
     });

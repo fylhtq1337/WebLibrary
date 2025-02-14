@@ -49,10 +49,10 @@ namespace WebLibrary4.Controllers
                 return BadRequest("Номер страницы и размер страницы должны быть больше 0.");
             }
 
-            // Получение общего количества книг
+             
             var totalBooks = await _bookService.GetTotalBookCountAsync();
 
-            // Расчет общего количества страниц
+             
             var totalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
 
             if (page > totalPages)
@@ -60,13 +60,13 @@ namespace WebLibrary4.Controllers
                 return BadRequest("Указанная страница выходит за пределы допустимого диапазона.");
             }
 
-            // Получение книг для текущей страницы
+            
             var books = await _bookService.GetBooksPaginatedAsync(page, pageSize);
 
-            // Формирование результата
+            
             var result = new
             {
-                Books = _mapper.Map<IEnumerable<BookShortDto>>(books), // Преобразование сущностей в DTO
+                Books = _mapper.Map<IEnumerable<BookShortDto>>(books),  
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalBooks = totalBooks
@@ -107,7 +107,7 @@ namespace WebLibrary4.Controllers
         public async Task<IActionResult> GetById(int id)
         {
              
-                if (id <= 0) // Проверяем некорректный id
+                if (id <= 0)  
                 {
                     return BadRequest(new
                     {
@@ -137,10 +137,7 @@ namespace WebLibrary4.Controllers
         {
 
 
-            // Логирование тела запроса
-            Console.WriteLine("Пришёл запрос:");
-            Console.WriteLine($"Title: {bookDto.Title}, Author: {bookDto.Author}");
-            // Проверяем входные данные
+             
             if (bookDto == null)
             {
                 return BadRequest(new
@@ -172,27 +169,7 @@ namespace WebLibrary4.Controllers
             return CreatedAtAction(nameof(GetById), new { id = book.Id }, bookResponse);
 
         }
-
-        // [HttpPost("{bookId}/add-pdf")]
-        // public async Task<IActionResult> UploadPdf(int bookId, [FromForm] IFormFile pdfFile)
-        // {
-        //
-        //     // Вызываем сервис для обработки загрузки
-        //     var pdfId = await _bookService.UploadPdfAsync(bookId, pdfFile);
-        //
-        //     // Проверяем результат и возвращаем успешный ответ
-        //     return Ok(new
-        //     {
-        //         Message = "PDF успешно добавлен.",
-        //         PdfId = pdfId
-        //     });
-        // }
-        //
-
-       
         
-      
-
         [HttpPut("update-book/{id}")]
         public async Task<IActionResult> UpdateDescription(int id, [FromBody] BookUpdateDiscrptionDto bookDto)
         {

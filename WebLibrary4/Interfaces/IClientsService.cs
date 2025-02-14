@@ -5,7 +5,6 @@ namespace WebLibrary4.Interfaces
 {
     public interface IClientService
     {
-         
         Task<IEnumerable<Clients>> GetPaginatedClientsAsync(int page, int pageSize);
         Task<int> GetTotalClientsCountAsync();
         Task<ClientSearchResult> SearchByNameAsync(string name, int page, int pageSize);

@@ -18,10 +18,10 @@ namespace WebLibrary4.Services
         
         public async Task<IEnumerable<Clients>> GetPaginatedClientsAsync(int page, int pageSize)
         {
-            // Вычисляем пропуски для пагинации
+             
             var skip = (page - 1) * pageSize;
 
-            // Получаем клиентов с учетом пропусков и лимита
+             
             return await _clientRepository.GetPaginatedClientsAsync(skip, pageSize);
         }
 
@@ -59,7 +59,7 @@ namespace WebLibrary4.Services
 
         public async Task<Clients?> GetClientByIdAsync(int id)
         {
-            // Здесь можно добавить дополнительную логику, например, проверку ID
+             
             if (id <= 0)
             {
                 throw new ArgumentException("Id должен быть положительным числом.", nameof(id));
@@ -80,18 +80,18 @@ namespace WebLibrary4.Services
                 throw new ArgumentException("Email не может быть пустым.", nameof(clientDto.Email));
             }
 
-            // Преобразуем ClientCreateDto в модель Clients
+            
             var client = new Clients
             {
                 Username = clientDto.Username,
                 Email = clientDto.Email,
-                Role = "Client" // Указать значение по умолчанию, если Role отсутствует в DTO
+                Role = "Client"  
             };
 
-            // Передаём данные в репозиторий
+            
             var id = await _clientRepository.AddAsync(client);
 
-            // Если id больше 0, клиент был добавлен
+            
             return id > 0;
         }
 
@@ -114,19 +114,19 @@ namespace WebLibrary4.Services
                 throw new ArgumentException("Email клиента не может быть пустым.", nameof(clientDto.Email));
             }
 
-            // Преобразуем ClientDetailsDto в модель Clients
+             
             var client = new Clients
             {
                 Id = clientDto.Id,
                 Username = clientDto.Username,
                 Email = clientDto.Email,
-                Role = "Client" // Можно задать значение по умолчанию, если Role отсутствует в DTO
+                Role = "Client" 
             };
 
-            // Осуществляем обновление клиента
+             
             await _clientRepository.UpdateAsync(client);
 
-            return true; // Считаем успешным обновление, если нет ошибок
+            return true;  
         }
 
         public async Task<bool> DeleteClientAsync(int id)
@@ -136,7 +136,7 @@ namespace WebLibrary4.Services
                 throw new ArgumentException("Id должен быть положительным числом.", nameof(id));
             }
 
-            // Удаляем клиента через репозиторий
+            
             return await _clientRepository.DeleteAsync(id);
         }
     }

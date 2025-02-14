@@ -9,7 +9,7 @@ namespace WebLibrary4.Services
 {
     public class BorrowRecordService : IBorrowRecordService
     {
-        private readonly IBorrowRecordRepository _repository; // Репозиторий
+        private readonly IBorrowRecordRepository _repository;  
 
         public BorrowRecordService(IBorrowRecordRepository repository)
         {
@@ -27,12 +27,12 @@ namespace WebLibrary4.Services
             return results;
         }
 
-        // Получение всех записей
+        
         public async Task<IEnumerable<BorrowRecordDto>> GetAllAsync()
         {
             var borrowRecords = await _repository.GetAllAsync();
             
-            // Преобразуем сущности в DTO
+             
             return borrowRecords.Select(record => new BorrowRecordDto
             {
                 Id = record.Id,
@@ -45,10 +45,10 @@ namespace WebLibrary4.Services
         
         public async Task<IEnumerable<BorrowRecordClientNameBookTitleDto>> GetDetailedBorrowRecordsAsync()
         {
-            // Вызываем метод репозитория для получения данных
+            
             var detailedRecords = await _repository.GetDetailedBorrowRecordsAsync();
 
-            // Преобразуем данные из репозитория (если необходимо, тут уже совпадают DTO и возвращаемые поля)
+             
             return detailedRecords.Select(record => new BorrowRecordClientNameBookTitleDto
             {
                 Id = record.Id,
@@ -59,17 +59,17 @@ namespace WebLibrary4.Services
             });
         }
 
-        //  этот метод нужно в  доработать 
+         
         public async Task<BorrowRecordDetailsDto?> GetByIdAsync(int id)
         {
             var borrowRecord = await _repository.GetByIdAsync(id);
 
             if (borrowRecord == null)
             {
-                return null; // Если запись не найдена, возвращаем null
+                return null;  
             }
 
-            // Преобразуем сущность в Detailed DTO
+             
             return new BorrowRecordDetailsDto
             {
                 Id = borrowRecord.Id,
@@ -91,10 +91,10 @@ namespace WebLibrary4.Services
             };
         }
 
-        // Добавление записи
+        
         public async Task<int> CreateBorrowAsync(BorrowRecordDto borrowRecordDto)
         {
-            // Преобразуем DTO в сущность
+             
             var borrowRecord = new BorrowRecord
             {
                 BookId = borrowRecordDto.BookId,
@@ -103,14 +103,14 @@ namespace WebLibrary4.Services
                 ReturnDate = borrowRecordDto.ReturnDate
             };
 
-            // Вызываем метод репозитория
+            
             return await _repository.AddAsync(borrowRecord);
         }
 
-        // Обновление записи
+        
         public async Task UpdateAsync(BorrowRecordDto borrowRecordDto)
         {
-            // Преобразуем DTO в сущность
+             
             var borrowRecord = new BorrowRecord
             {
                 Id = borrowRecordDto.Id,
@@ -120,7 +120,7 @@ namespace WebLibrary4.Services
                 ReturnDate = borrowRecordDto.ReturnDate
             };
 
-            // Вызываем метод репозитория
+             
             await _repository.UpdateAsync(borrowRecord);
         }
         
@@ -129,15 +129,15 @@ namespace WebLibrary4.Services
             var record = await _repository.GetByIdAsync(id);
 
             if (record == null)
-                return false; // Запись не найдена
+                return false;  
 
-            record.ReturnDate = DateTime.UtcNow; // Устанавливаем дату возврата (текущая)
+            record.ReturnDate = DateTime.UtcNow;  
             await _repository.UpdateAsync(record);
 
             return true;
         }
 
-        // Удаление записи
+        
         public async Task<bool> DeleteAsync(int id)
         {
             return await _repository.DeleteAsync(id);

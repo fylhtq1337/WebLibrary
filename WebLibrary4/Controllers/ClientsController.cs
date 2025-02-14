@@ -32,7 +32,7 @@ namespace WebLibrary4.Controllers
                     return NotFound("Клиентов не найдено.");
                 }
 
-                // Формируем результат с учетом общих страниц
+                 
                 var totalClients = await _clientService.GetTotalClientsCountAsync();
                 var totalPages = (int)Math.Ceiling((double)totalClients / pageSize);
 
@@ -66,7 +66,7 @@ namespace WebLibrary4.Controllers
                     return BadRequest("Параметры page и pageSize должны быть больше 0.");
                 }
 
-                // Вызываем метод сервиса с параметрами пагинации
+                
                 var result = await _clientService.SearchByNameAsync(name, page, pageSize);
 
                 if (!result.Clients.Any())
@@ -74,7 +74,7 @@ namespace WebLibrary4.Controllers
                     return NotFound($"Клиенты с именем '{name}' не найдены.");
                 }
 
-                // Возвращаем результат запроса
+                
                 return Ok(result);
             }
             catch (ArgumentException e)
@@ -117,7 +117,7 @@ namespace WebLibrary4.Controllers
                 return BadRequest(new { Message = "Имя клиента и email обязательны" });
             }
 
-            if (!IsValidEmail(clientDto.Email)) // Можно добавить кастомную валидацию email
+            if (!IsValidEmail(clientDto.Email))  
             {
                 return BadRequest(new { Message = "Некорректный email" });
             }
@@ -132,7 +132,7 @@ namespace WebLibrary4.Controllers
             return Ok(new { Message = "Клиент успешно создан." });
         }
 
-// Метод проверки валидности email
+ 
         private bool IsValidEmail(string email)
         {
             try

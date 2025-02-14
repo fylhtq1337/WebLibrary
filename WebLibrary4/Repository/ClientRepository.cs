@@ -95,7 +95,7 @@ namespace WebLibrary4.Repositories
 
                 using (var command = new NpgsqlCommand(query, connection))
                 {
-                    // Добавляем параметры
+                     
                     command.Parameters.AddWithValue("@Name", name);
                     command.Parameters.AddWithValue("@PageSize", pageSize);
                     command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
@@ -139,7 +139,7 @@ namespace WebLibrary4.Repositories
                             Id = reader.GetInt32(0),
                             Username = reader.GetString(1),
                             Email = reader.GetString(2),
-                            Role = reader.GetString(3) // Так же читается роль
+                            Role = reader.GetString(3)  
                         });
                     }
                 }
@@ -172,7 +172,7 @@ namespace WebLibrary4.Repositories
                 }
             }
 
-            return null; // Клиент с заданным Id не найден
+            return null;  
         }
 
         public async Task<int> AddAsync(Clients client)
@@ -228,10 +228,10 @@ namespace WebLibrary4.Repositories
                 var command = new NpgsqlCommand("DELETE FROM Clients WHERE Id = @Id", connection);
                 command.Parameters.AddWithValue("@Id", id);
 
-                // Выполняем запрос и проверяем количество затронутых строк
+                
                 var rowsAffected = await command.ExecuteNonQueryAsync();
 
-                return rowsAffected > 0; // Если удалена хотя бы одна строка, возвращаем true
+                return rowsAffected > 0;  
             }
         }
     }

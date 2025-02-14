@@ -5,16 +5,15 @@ namespace WebLibrary4.Interfaces;
 
 public interface IBookService
 {
-    Task<int?> UploadPdfAsync(int bookId, IFormFile pdfFile);
+     
     Task<IEnumerable<Books>> SearchBooksAsync(string? title);
-    Task<int> GetTotalBookCountAsync(); // Ожидаемое количество всех записей книг
-    Task<IEnumerable<Books>> GetBooksPaginatedAsync(int page, int pageSize); // Пагинированный список книг
+    Task<int> GetTotalBookCountAsync();  
+    Task<IEnumerable<Books>> GetBooksPaginatedAsync(int page, int pageSize);  
 
     Task<IEnumerable<Books>> GetAllBooksAsync();
     Task<Books?> GetBookByIdAsync(int id);
     Task<int> AddBookAsync(Books book);
     Task<bool> UpdateBookDescriptionAsync(int id, BookUpdateDiscrptionDto dto);
     Task<bool> DeleteBookAsync(int id);
-    Task<int?> AddPdfToBookAsync(PdfDocument pdf, int bookId);
-    Task<PdfDocument> ShowContetnBook(int id);
+    
 }

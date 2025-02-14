@@ -24,14 +24,14 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                // SQL-запрос: поиск только по названию книги
+                 
                 var query = @"
             SELECT
                 br.Id AS RecordId,
-                c.Username AS ClientName,      -- Имя клиента
-                b.Title AS BookTitle,          -- Название книги
-                br.BorrowDate AS BorrowDate,   -- Дата взятия книги
-                br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+                c.Username AS ClientName,       
+                b.Title AS BookTitle,           
+                br.BorrowDate AS BorrowDate,    
+                br.ReturnDate AS ReturnDate     
             FROM
                 BorrowRecord br
                 JOIN Clients c ON br.ClientId = c.Id
@@ -39,7 +39,7 @@ namespace WebLibrary4.Repositories
             WHERE
                 b.Title ILIKE '%' || @BookTitle || '%'";
         
-                // Подготовка команды
+                
                 var command = new NpgsqlCommand(query, connection);
                 command.Parameters.AddWithValue("@BookTitle", bookTitle);
 
@@ -49,11 +49,11 @@ namespace WebLibrary4.Repositories
                     {
                         detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
                         {
-                            Id = reader.GetInt32(0),                              // RecordId (Id)
-                            ClientName = reader.GetString(1),                     // ClientName
-                            BookTitle = reader.GetString(2),                      // BookTitle
-                            BorrowDate = reader.GetDateTime(3),                   // BorrowDate
-                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // ReturnDate
+                            Id = reader.GetInt32(0),                               
+                            ClientName = reader.GetString(1),                     
+                            BookTitle = reader.GetString(2),                      
+                            BorrowDate = reader.GetDateTime(3),                   
+                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4)  
                         });
                     }
                 }
@@ -70,14 +70,14 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                // SQL-запрос: поиск только по имени клиента
+                
                 var query = @"
             SELECT
                 br.Id AS RecordId,
-                c.Username AS ClientName,      -- Имя клиента
-                b.Title AS BookTitle,          -- Название книги
-                br.BorrowDate AS BorrowDate,   -- Дата взятия книги
-                br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+                c.Username AS ClientName,      
+                b.Title AS BookTitle,           
+                br.BorrowDate AS BorrowDate,    
+                br.ReturnDate AS ReturnDate     
             FROM
                 BorrowRecord br
                 JOIN Clients c ON br.ClientId = c.Id
@@ -85,7 +85,7 @@ namespace WebLibrary4.Repositories
             WHERE
                 c.Username ILIKE '%' || @ClientName || '%'";
                 
-                // Подготовка команды
+                 
                 var command = new NpgsqlCommand(query, connection);
                 command.Parameters.AddWithValue("@ClientName", clientName);
 
@@ -95,11 +95,11 @@ namespace WebLibrary4.Repositories
                     {
                         detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
                         {
-                            Id = reader.GetInt32(0),                              // RecordId (Id)
-                            ClientName = reader.GetString(1),                     // ClientName
-                            BookTitle = reader.GetString(2),                      // BookTitle
-                            BorrowDate = reader.GetDateTime(3),                   // BorrowDate
-                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // ReturnDate
+                            Id = reader.GetInt32(0),                              
+                            ClientName = reader.GetString(1),                      
+                            BookTitle = reader.GetString(2),                       
+                            BorrowDate = reader.GetDateTime(3),                   
+                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4)  
                         });
                     }
                 }
@@ -108,7 +108,7 @@ namespace WebLibrary4.Repositories
             return detailedRecords;
         }
         
-        // Получить все записи
+         
         public async Task<IEnumerable<BorrowRecord>> GetAllAsync()
         {
             var borrowRecords = new List<BorrowRecord>();
@@ -138,7 +138,7 @@ namespace WebLibrary4.Repositories
             return borrowRecords;
         }
 
-        // Получить запись по Id
+         
         public async Task<BorrowRecord?> GetByIdAsync(int id)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
@@ -167,7 +167,7 @@ namespace WebLibrary4.Repositories
             return null;
         }
 
-        // Добавить новую запись и уменьшить количество доступных книг
+        
 public async Task<int> AddAsync(BorrowRecord borrowRecord)
 {
     using (var connection = new NpgsqlConnection(_connectionString))
@@ -178,20 +178,20 @@ public async Task<int> AddAsync(BorrowRecord borrowRecord)
         {
             try
             {
-                // Проверить, доступна ли книга для выдачи
+                 
                 var checkAmountQuery = "SELECT Amount FROM Books WHERE Id = @BookId";
                 var commandCheckAmount = new NpgsqlCommand(checkAmountQuery, connection, transaction);
                 commandCheckAmount.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
 
                 var amount = await commandCheckAmount.ExecuteScalarAsync();
                 
-                // Конвертируем результат в int и проверяем количество книг
+                 
                 if (amount == null || Convert.ToInt32(amount) <= 0)
                 {
                     throw new Exception("Книга недоступна для выдачи. Остаток экземпляров равен 0.");
                 }
                 
-                // Уменьшить количество книг, если доступные экземпляры больше 0
+                
                 var updateBookQuery = @"
                     UPDATE Books
                     SET Amount = Amount - 1
@@ -201,14 +201,14 @@ public async Task<int> AddAsync(BorrowRecord borrowRecord)
                 var commandUpdateBook = new NpgsqlCommand(updateBookQuery, connection, transaction);
                 commandUpdateBook.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
 
-                // Получаем новое значение Amount
+                 
                 var updatedAmount = await commandUpdateBook.ExecuteScalarAsync();
                 if (updatedAmount == null)
                 {
                     throw new Exception("Книга недоступна для выдачи (количество экземпляров = 0).");
                 }
 
-                // Добавление новой записи в BorrowRecord
+                 
                 var insertQuery = @"
                     INSERT INTO BorrowRecord (BookId, ClientId, BorrowDate, ReturnDate) 
                     VALUES (@BookId, @ClientId, @BorrowDate, @ReturnDate) 
@@ -222,7 +222,7 @@ public async Task<int> AddAsync(BorrowRecord borrowRecord)
 
                 var result = await commandInsert.ExecuteScalarAsync();
 
-                // Фиксация транзакции
+                 
                 await transaction.CommitAsync();
 
                 return Convert.ToInt32(result);
@@ -236,7 +236,7 @@ public async Task<int> AddAsync(BorrowRecord borrowRecord)
     }
 }
 
-       // Обновить запись и вернуть книгу
+       
 public async Task UpdateAsync(BorrowRecord borrowRecord)
 {
     using (var connection = new NpgsqlConnection(_connectionString))
@@ -247,7 +247,7 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
         {
             try
             {
-                // Проверить, была ли книга уже возвращена
+                 
                 var checkQuery = @"
                     SELECT ReturnDate
                     FROM BorrowRecord
@@ -262,7 +262,7 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
                     throw new Exception("Книга уже возвращена.");
                 }
 
-                // Увеличить количество доступных книг
+                 
                 var updateBookQuery = @"
                     UPDATE Books
                     SET Amount = Amount + 1
@@ -272,7 +272,7 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
                 commandUpdateBook.Parameters.AddWithValue("@BookId", borrowRecord.BookId);
                 await commandUpdateBook.ExecuteNonQueryAsync();
 
-                // Обновить запись BorrowRecord
+                 
                 var updateBorrowRecordQuery = @"
                     UPDATE BorrowRecord
                     SET BookId = @BookId,
@@ -290,7 +290,7 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
 
                 await commandUpdateBorrowRecord.ExecuteNonQueryAsync();
 
-                // Фиксация транзакции
+                 
                 await transaction.CommitAsync();
             }
             catch
@@ -313,10 +313,10 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
                 var command = new NpgsqlCommand(@"
             SELECT
                 br.Id AS RecordId,
-                c.Username AS ClientName,      -- Имя клиента
-                b.Title AS BookTitle,          -- Название книги
-                br.BorrowDate AS BorrowDate,   -- Дата взятия книги
-                br.ReturnDate AS ReturnDate    -- Дата возврата книги (если есть)
+                c.Username AS ClientName,      
+                b.Title AS BookTitle,           
+                br.BorrowDate AS BorrowDate,    
+                br.ReturnDate AS ReturnDate     
             FROM
                 BorrowRecord br
                 JOIN Clients c ON br.ClientId = c.Id
@@ -332,11 +332,11 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
                         Debug.WriteLine($"Record ID fetched from DB: {recordId}");
                         detailedRecords.Add(new BorrowRecordClientNameBookTitleDto
                         {
-                            Id = reader.GetInt32(0),                              // RecordId (Id)
-                            ClientName = reader.GetString(1),                     // ClientName
-                            BookTitle = reader.GetString(2),                      // BookTitle
-                            BorrowDate = reader.GetDateTime(3),                   // BorrowDate
-                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4) // ReturnDate
+                            Id = reader.GetInt32(0),                               
+                            ClientName = reader.GetString(1),                     
+                            BookTitle = reader.GetString(2),                       
+                            BorrowDate = reader.GetDateTime(3),                    
+                            ReturnDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4)  
                         });
                     }
                 }
@@ -345,7 +345,7 @@ public async Task UpdateAsync(BorrowRecord borrowRecord)
             return detailedRecords;
         }
 
-        // Удалить запись по Id
+        
         public async Task<bool> DeleteAsync(int id)
         {
             using (var connection = new NpgsqlConnection(_connectionString))

@@ -12,8 +12,6 @@ public class BorrowRecordDetailsDto
  
     public DateTime BorrowDate { get; set; }
     public DateTime? ReturnDate { get; set; }
-
-    // Дополнительные данные о пользователе или книге
     public ClientDto? Borrower { get; set; }
     public BookRequestDto? BorrowedBook { get; set; }  
 }

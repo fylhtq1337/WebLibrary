@@ -37,18 +37,18 @@ namespace WebLibrary4.Controllers
         {
             try
             {
-                // Вызов метода сервиса для получения детализированных записей
+                 
                 var detailedRecords = await _service.GetDetailedBorrowRecordsAsync();
 
-                // Возвращаем результат
+                 
                 return Ok(detailedRecords);
             }
             catch (Exception ex)
             {
-                // Логирование исключений при необходимости
+                 
                 Console.WriteLine($"Ошибка: {ex.Message}");
 
-                // Возвращаем статус ошибки (500 — Internal server error)
+                 
                 return StatusCode(500, new
                 {
                     Error = "Внутренняя ошибка сервера",
@@ -84,11 +84,11 @@ namespace WebLibrary4.Controllers
         [HttpPut("return/{id}")]
         public async Task<IActionResult> ReturnBook(int id)
         {
-            // Устанавливаем дату возврата для записи
+             
             var updated = await _service.MarkAsReturnedAsync(id);
 
             if (!updated)
-                return NotFound(); // Если запись с указанным Id не найдена
+                return NotFound();  
 
             return NoContent();
         }
@@ -109,10 +109,10 @@ namespace WebLibrary4.Controllers
             }
             catch (Exception ex)
             {
-                // Логирование ошибки
+                 
                 Console.WriteLine($"Ошибка поиска книги: {ex.Message}");
 
-                // Возвращаем код 500 (внутренняя ошибка сервера)
+                 
                 return StatusCode(500, new
                 {
                     Error = "Внутренняя ошибка сервера",
@@ -138,10 +138,10 @@ namespace WebLibrary4.Controllers
             }
             catch (Exception ex)
             {
-                // Логирование ошибки
+                 
                 Console.WriteLine($"Ошибка поиска клиента: {ex.Message}");
 
-                // Возвращаем код 500 (внутренняя ошибка сервера)
+                 
                 return StatusCode(500, new
                 {
                     Error = "Внутренняя ошибка сервера",

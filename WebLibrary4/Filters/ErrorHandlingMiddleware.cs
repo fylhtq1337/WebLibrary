@@ -18,7 +18,7 @@ public class ErrorHandlingMiddleware
     {
         try
         {
-            // Продолжаем цепочку вызовов
+             
             await _next(context);
         }
         catch (Exception ex)
@@ -30,18 +30,18 @@ public class ErrorHandlingMiddleware
 
     private Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        // Настраиваем статус и заголовки
+         
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        // Формируем ответ в нужном формате. Можно расширять по желанию
+        
         var result = new
         {
             Error = "Внутренняя ошибка сервера",
-            Details = ex.Message // В продакшене обычно убирают или логируют в файл
+            Details = ex.Message  
         };
 
-        // Возвращаем JSON
+        
         return context.Response.WriteAsJsonAsync(result);
     }
 }

@@ -21,11 +21,11 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                var query = "SELECT COUNT(*) FROM Books"; // SQL-запрос для подсчета количества записей
+                var query = "SELECT COUNT(*) FROM Books";  
 
                 using (var command = new NpgsqlCommand(query, connection))
                 {
-                    var result = await command.ExecuteScalarAsync(); // Метод ExecuteScalarAsync возвращает первую колонку первой строки (количество записей)
+                    var result = await command.ExecuteScalarAsync();  
                     return Convert.ToInt32(result);
                 }
             }
@@ -38,14 +38,14 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                // SQL-запрос с LIMIT и OFFSET
+                
                 var query = @"SELECT * FROM Books
                       ORDER BY Id -- Сортировка для предсказуемости
                       LIMIT @PageSize OFFSET @Offset";
 
                 using (var command = new NpgsqlCommand(query, connection))
                 {
-                    // Передаем параметры
+                  
                     command.Parameters.AddWithValue("@PageSize", pageSize);
                     command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
 
@@ -80,13 +80,13 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                // Основной SQL-запрос с фильтрацией
+                 
                 var query = @"SELECT * FROM Books WHERE 
                       (@Title IS NULL OR Title ILIKE '%' || @Title || '%')";
         
                 using (var command = new NpgsqlCommand(query, connection))
                 {
-                    // Добавляем параметры (сравнение iLIKE для нечувствительности к регистру)
+                     
                     command.Parameters.AddWithValue("@Title", (object?)title ?? DBNull.Value);
                      
 
@@ -118,7 +118,7 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                // SQL-запрос для выбора PDF по идентификатору книги
+                 
                 var command = new NpgsqlCommand(
                     "SELECT * FROM PdfDocument WHERE BookId = @BookId", 
                     connection);
@@ -132,7 +132,7 @@ namespace WebLibrary4.Repositories
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FileName = reader.GetString(reader.GetOrdinal("FileName")),
-                            Content = (byte[])reader["Content"], // Извлечение содержимого PDF (массив байтов)
+                            Content = (byte[])reader["Content"],  
                             ContentType = reader.GetString(reader.GetOrdinal("ContentType")),
                             BookId = reader.GetInt32(reader.GetOrdinal("BookId"))
                         };
@@ -140,7 +140,7 @@ namespace WebLibrary4.Repositories
                 }
             }
 
-            // Возвращается null, если PDF для книги не найден
+             
             return null;
         }
 

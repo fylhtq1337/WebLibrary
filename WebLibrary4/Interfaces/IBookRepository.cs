@@ -6,13 +6,8 @@ public interface IBookRepository
 {
     Task<IEnumerable<Books>> GetAllAsync();
     Task<IEnumerable<Books>> SearchBooksAsync(string? title);
-    // Получить общее количество записей книг
     Task<int> GetTotalBookCountAsync();
-
-    // Получить книги с учетом пагинации
     Task<IEnumerable<Books>> GetBooksPaginatedAsync(int page, int pageSize);
-
-    
     Task<Books?> GetByIdAsync(int id);  
     Task<int> AddAsync(Books book);  
     Task UpdateAsync(Books book);  

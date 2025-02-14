@@ -5,32 +5,32 @@ namespace WebLibrary4.Models.Entities;
 
 public class BorrowRecord
 {
-    public int Id { get; set; } // Уникальный идентификатор записи
+    public int Id { get; set; }  
     
     [Required(ErrorMessage = "Книга должна быть указана.")]
-    [ForeignKey("Book")] // Указываем, что BookId ссылается на Book
-    public int BookId { get; set; } // ID книги
+    [ForeignKey("Book")]  
+    public int BookId { get; set; }  
     
     
     [Required(ErrorMessage = "Пользователь должен быть указан.")]
     [ForeignKey("Clints")]
-    public int ClientId { get; set; } // ID пользователя
+    public int ClientId { get; set; }  
     
      
     
     [Required(ErrorMessage = "Дата взятия книги обязательна.")]
     [DataType(DataType.Date)]
-    public DateTime BorrowDate { get; set; } // Дата взятия
+    public DateTime BorrowDate { get; set; }  
     
     [DataType(DataType.Date)]
-    public DateTime? ReturnDate { get; set; } // Дата возврата (может быть null)
+    public DateTime? ReturnDate { get; set; }  
 
-    // Связи (для удобства)
-    public Books? BorrowedBook { get; set; } // Ссылка на книгу
-    public Clients? Borrower { get; set; } // Ссылка на пользователя
+     
+    public Books? BorrowedBook { get; set; }  
+    public Clients? Borrower { get; set; }  
     
     
-    // Метод для проверки корректности даты возврата
+     
     public static ValidationResult? ValidateReturnDate(DateTime? returnDate, ValidationContext context)
     {
         var instance = (BorrowRecord)context.ObjectInstance;
