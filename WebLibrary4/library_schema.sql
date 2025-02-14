@@ -24,7 +24,19 @@ VALUES
     ('TestUser2', 'testuser2@example.com', 'Client'),
     ('TestUser3', 'testuser3@example.com', 'Client'),
     ('TestUser4', 'testuser4@example.com', 'Client'),
-    ('TestUser5', 'testuser5@example.com', 'Client');
+    ('TestUser5', 'testuser5@example.com', 'Client'),   
+    ('TestUser6', 'tes2t@example.com', 'Admin'),
+    ('TestUser7', 'test3@example.com', 'Client'),
+    ('TestUser8', 'test5@example.com', 'Client'),
+    ('TestUser9', 'tes46@example.com', 'Client'),
+    ('TestUser10', 'test8@example.com', 'Admin'),
+    ('TestUser11', 'test45@example.com', 'Client'),
+    ('TestUser12', 'tes3@64example.com', 'Client'),
+    ('TestUser13', 'test@example.com', 'Client'),
+    ('TestUser14', 'tes445t@example.com', 'Admin'),
+    ('TestUser15', 'test@e64xample.com', 'Client'),
+    ('TestUser16', 'test@456example.com', 'Client'),
+    ('TestU', 'tes@exam23rvcple.com', 'Client');
  
 
  

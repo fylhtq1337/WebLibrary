@@ -51,19 +51,31 @@ namespace WebLibrary4.Controllers
         }
         
         [HttpGet("search")]
-        public async Task<IActionResult> SearchByName([FromQuery] string name)
+        
+        public async Task<IActionResult> SearchByName([FromQuery] string name, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                // Вызов метода сервиса
-                var clients = await _clientService.SearchByNameAsync(name);
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return BadRequest("Имя для поиска не может быть пустым.");
+                }
 
-                if (!clients.Any())
+                if (page <= 0 || pageSize <= 0)
+                {
+                    return BadRequest("Параметры page и pageSize должны быть больше 0.");
+                }
+
+                // Вызываем метод сервиса с параметрами пагинации
+                var result = await _clientService.SearchByNameAsync(name, page, pageSize);
+
+                if (!result.Clients.Any())
                 {
                     return NotFound($"Клиенты с именем '{name}' не найдены.");
                 }
 
-                return Ok(clients);
+                // Возвращаем результат запроса
+                return Ok(result);
             }
             catch (ArgumentException e)
             {

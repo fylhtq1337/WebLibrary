@@ -58,8 +58,28 @@ namespace WebLibrary4.Repositories
             var result = await command.ExecuteScalarAsync();
             return Convert.ToInt32(result);
         }
+        public async Task<int> CountByNameAsync(string name)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var query = @"
+            SELECT COUNT(*) 
+            FROM Clients 
+            WHERE Username ILIKE '%' || @Name || '%'";
+
+                using (var command = new NpgsqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Name", name);
+
+                    return Convert.ToInt32(await command.ExecuteScalarAsync());
+                }
+            }
+        }
+
         
-        public async Task<IEnumerable<Clients>> SearchByNameAsync(string name)
+        public async Task<IEnumerable<Clients>> SearchByNamePaginatedAsync(string name, int page, int pageSize)
         {
             var clients = new List<Clients>();
 
@@ -67,11 +87,18 @@ namespace WebLibrary4.Repositories
             {
                 await connection.OpenAsync();
 
-                 
-                var query = @"SELECT * FROM Clients WHERE Username ILIKE '%' || @Name || '%'";
+                var query = @"
+            SELECT * 
+            FROM Clients 
+            WHERE Username ILIKE '%' || @Name || '%' 
+            LIMIT @PageSize OFFSET @Offset";
+
                 using (var command = new NpgsqlCommand(query, connection))
                 {
+                    // Добавляем параметры
                     command.Parameters.AddWithValue("@Name", name);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+                    command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -91,6 +118,7 @@ namespace WebLibrary4.Repositories
 
             return clients;
         }
+
 
         public async Task<IEnumerable<Clients>> GetAllAsync()
         {

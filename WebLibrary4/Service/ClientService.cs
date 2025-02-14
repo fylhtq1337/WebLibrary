@@ -30,16 +30,26 @@ namespace WebLibrary4.Services
             return await _clientRepository.GetTotalClientsCountAsync();
         }
         
-        public async Task<IEnumerable<Clients>> SearchByNameAsync(string name)
+        public async Task<ClientSearchResult> SearchByNameAsync(string name, int page, int pageSize)
         {
-            // Проверка на пустое или null имя
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Имя для поиска не может быть пустым.");
             }
 
-            // Вызов метода репозитория
-            return await _clientRepository.SearchByNameAsync(name);
+             
+            var paginatedClients = await _clientRepository.SearchByNamePaginatedAsync(name, page, pageSize);
+            var totalClients = await _clientRepository.CountByNameAsync(name);  
+
+            var totalPages = (int)Math.Ceiling((double)totalClients / pageSize);
+
+            return new ClientSearchResult
+            {
+                Clients = paginatedClients,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalClients = totalClients
+            };
         }
 
         public async Task<IEnumerable<Clients>> GetAllClientsAsync()

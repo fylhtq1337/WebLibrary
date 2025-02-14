@@ -51,20 +51,88 @@ function validateEmail(email) {
 // ----------------------------
 // Логика работы с клиентами
 // ----------------------------
-function loadClients() {
-    sendRequest("GET", "/api/clients/get-all", null, function (data) {
-        if (Array.isArray(data) && data.length > 0) {
-            renderTable("#clients-table", data, createClientRow);
+$(document).ready(function () {
+    // Обработчик кнопки "Список клиентов"
+    $("#load-clients").on("click", function () {
+        loadClients();
+    });
+
+    // Привязка кнопок пагинации
+    $(document).on("click", "#pagination-controls-clients .page-link", function (e) {
+        e.preventDefault();
+        const page = $(this).data("page");
+        loadClients(page); // Загружаем выбранную страницу
+    });
+});
+
+function loadClients(page = 1, pageSize = 10) {
+    // Отправляем запрос с указанием страницы и размера страницы
+    sendRequest("GET", `/api/clients/paginated?page=${page}&pageSize=${pageSize}`, null, function (data) {
+        console.log("Ответ от API /api/clients/paginated", data);
+
+        if (data && data.clients && data.clients.length > 0) {
+            renderTable("#clients-table", data.clients, createClientRow);
+            console.log(
+                "Перед рендерингом пагинации: currentPage =", data.currentPage,
+                "totalPages =", data.totalPages
+            );
+
+            renderPaginationClients(data.currentPage, data.totalPages);
         } else {
-            // Очищаем таблицу и выводим сообщение, если данные отсутствуют.
             const tableBody = $("#clients-table").find("tbody");
             tableBody.empty();
             tableBody.append("<tr><td colspan='5'>Клиенты не найдены</td></tr>");
+            $("#pagination-controls").empty(); 
         }
         $("#clients-search-results").hide();
-        addClientDeleteHandlers(); // Вызываем после рендеринга таблицы
+        addClientDeleteHandlers(); 
     });
 }
+function renderPaginationClients(currentPage, totalPages) {
+    const paginationControls = $("#pagination-controls-clients");
+    paginationControls.empty(); // Очистить предыдущие кнопки
+
+    if (totalPages <= 1) {
+        return; // Если всего одна страница, не создаем пагинацию
+    }
+
+    // Кнопка "Предыдущая"
+    if (currentPage > 1) {
+        paginationControls.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Предыдущая</a>
+            </li>
+        `);
+    }
+
+    // Генерация кнопок для всех страниц
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = (i === currentPage) ? "active" : "";
+        paginationControls.append(`
+            <li class="page-item ${activeClass}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `);
+    }
+
+    // Кнопка "Следующая"
+    if (currentPage < totalPages) {
+        paginationControls.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Следующая</a>
+            </li>
+        `);
+    }
+}
+
+ 
+
+// Обработчик кликов на кнопках пагинации
+$(document).on("click", "#pagination-controls .page-link", function (e) {
+    e.preventDefault();
+    const page = $(this).data("page");
+    loadClients(page); // Загружаем выбранную страницу
+});
 
 
 function createClientRow(client) {
@@ -80,7 +148,21 @@ function createClientRow(client) {
         </tr>`;
 }
 
+$("#clients-table").on("click", ".delete-client", function () {
+    const clientId = $(this).data("id");
+    sendRequest("DELETE", `/api/clients/delete/${clientId}`, null, function () {
+        alert("Клиент удален!");
+        loadClients();
+    });
+});
+
 // Логика поиска клиентов по имени
+let searchParams = {
+    query: "",
+    page: 1,
+    pageSize: 10
+};
+
 $("#search-clients-btn").on("click", function () {
     const clientName = $("#search-client-name").val().trim();
 
@@ -89,21 +171,74 @@ $("#search-clients-btn").on("click", function () {
         return;
     }
 
-    // Отправляем AJAX-запрос на сервер для поиска клиентов
-    sendRequest("GET", `/api/clients/search?name=${clientName}`, null, function (data) {
-        if (data.length === 0) {
+    searchParams.query = clientName;
+    searchParams.page = 1; // При новом запросе начнем с первой страницы
+
+    loadSearchResults();
+});
+
+function loadSearchResults() {
+    const { query, page, pageSize } = searchParams;
+
+    sendRequest("GET", `/api/clients/search?name=${query}&page=${page}&pageSize=${pageSize}`, null, function (data) {
+        if (!data.clients || data.clients.length === 0) {
             alert("Клиенты не найдены.");
-            $("#clients-search-results").hide(); // Скрываем таблицу, если результатов нет
+            $("#clients-search-results").hide();
+            $("#pagination-controls-search").empty();
             return;
         }
 
-        // Рендер списка клиентов в таблицу
-        renderTable("#clients-search-results", data, createClientSearchRow);
-        $("#clients-search-results").show(); // Отображаем таблицу
+        renderTable("#clients-search-results", data.clients, createClientSearchRow);
+        $("#clients-search-results").show();
+        renderSearchPagination(data.currentPage, data.totalPages);
     }, function (xhr) {
         console.error("Ошибка при поиске клиентов:", xhr.responseText);
         alert(xhr.responseText || "Не удалось выполнить поиск.");
     });
+}
+
+function renderSearchPagination(currentPage, totalPages) {
+    const paginationControls = $("#pagination-controls-search");
+    paginationControls.empty();
+
+    if (totalPages <= 1) {
+        return;
+    }
+
+    if (currentPage > 1) {
+        paginationControls.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Предыдущая</a>
+            </li>
+        `);
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = i === currentPage ? "active" : "";
+        paginationControls.append(`
+            <li class="page-item ${activeClass}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `);
+    }
+
+    if (currentPage < totalPages) {
+        paginationControls.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Следующая</a>
+            </li>
+        `);
+    }
+}
+
+$(document).on("click", "#pagination-controls-search .page-link", function (e) {
+    e.preventDefault();
+    const page = $(this).data("page");
+
+    if (!page) return;
+
+    searchParams.page = page;
+    loadSearchResults();
 });
 
 function createClientSearchRow(client) {
