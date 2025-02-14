@@ -18,7 +18,10 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  background: #f1e7c6 url('/images/brown-papyrus-paper.jpg') repeat; /* Путь к изображению */
+  color: #2c2c2c; /* Цвет текста */
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.6;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
