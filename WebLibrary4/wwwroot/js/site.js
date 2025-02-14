@@ -346,11 +346,29 @@ $(document).on("click", "#pagination-controls .page-link", function (e) {
 
 
 // Обработка кнопки поиска
+// Обработка кнопки поиска (без пагинации)
 $("#search-books-btn").on("click", function () {
     const title = $("#search-title").val().trim();
-    loadBooks(1, 10, title); // Загружаем первую страницу с фильтрацией по названию
+    searchBooks(title); // вызываем функцию поиска без параметров страницы
 });
 
+// Функция для поиска книг по title (обращается к /api/books/search)
+function searchBooks(title) {
+    const url = `/api/books/search?title=${encodeURIComponent(title)}`;
+
+    sendRequest("GET", url, null, function (books) {
+        if (books && books.length > 0) {
+            renderTable("#books-search-results", books, createBookRow);
+        } else {
+            $("#books-search-results tbody")
+                .empty()
+                .append("<tr><td colspan='8'>Книги не найдены.</td></tr>");
+        }
+    }, function (xhr) {
+        console.error("Ошибка при поиске книг:", xhr.responseText);
+        alert("Не удалось найти книги.");
+    });
+}
 // Функция рендера строки книги
 // function createBookRow(book) {
 //     return `

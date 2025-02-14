@@ -26,23 +26,7 @@ namespace WebLibrary4.Controllers
         {
             throw new Exception("Тест выброса исключения");
         }
-        //
-        // [HttpGet("{id}/pdf")]
-        // public async Task<IActionResult> GetBookPdf(int id)
-        // {
-        //     try
-        //     {
-        //          
-        //         var pdf = await _bookService.ShowContetnBook(id);
-        //
-        //          
-        //         return File(pdf.Content, pdf.ContentType, pdf.FileName);
-        //     }
-        //     catch (KeyNotFoundException ex)
-        //     {
-        //         return NotFound(new { Error = ex.Message });
-        //     }
-        // }
+     
 
         [HttpGet("search")]
         public async Task<IActionResult> SearchBooks([FromQuery] string? title)
